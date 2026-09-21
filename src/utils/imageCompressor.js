@@ -61,7 +61,8 @@ export async function getImageInfo(file) {
   const isPng = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
   const hasTransparency = isPng ? checkTransparency(img) : false;
 
-  return {\n    width: img.naturalWidth || img.width,
+  return {
+    width: img.naturalWidth || img.width,
     height: img.naturalHeight || img.height,
     hasTransparency,
   };
