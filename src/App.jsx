@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import FileDropzone from './components/FileDropzone.jsx';
@@ -58,29 +58,34 @@ export default function App() {
 
   const t = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
 
-  // Active page SEO copy and configuration
-  const basePageData = ROUTES_DATA[currentPath] || ROUTES_DATA['/'];
-  const arabicOverride = lang === 'ar' ? (ARABIC_ROUTES_CONTENT[currentPath] || ARABIC_ROUTES_CONTENT['/']) : null;
+  // Active page SEO copy and configuration (memoized to prevent reference thrashing)
+  const pageData = useMemo(() => {
+    const basePageData = ROUTES_DATA[currentPath] || ROUTES_DATA['/'];
+    if (lang !== 'ar') return basePageData;
 
-  const pageData = arabicOverride
-    ? {
-        ...basePageData,
-        h1: arabicOverride.h1 || basePageData.h1,
-        subheading: arabicOverride.subheading || basePageData.subheading,
-        targetBadge: arabicOverride.targetBadge || basePageData.targetBadge,
-        targetSummary: arabicOverride.targetSummary || basePageData.targetSummary,
-        realisticConstraints: arabicOverride.realisticConstraints || basePageData.realisticConstraints,
-        howTo: arabicOverride.howTo || basePageData.howTo,
-        faqs: arabicOverride.faqs || basePageData.faqs,
-      }
-    : basePageData;
+    const arabicOverride = ARABIC_ROUTES_CONTENT[currentPath] || ARABIC_ROUTES_CONTENT['/'];
+    if (!arabicOverride) return basePageData;
 
+    return {
+      ...basePageData,
+      h1: arabicOverride.h1 || basePageData.h1,
+      subheading: arabicOverride.subheading || basePageData.subheading,
+      targetBadge: arabicOverride.targetBadge || basePageData.targetBadge,
+      targetSummary: arabicOverride.targetSummary || basePageData.targetSummary,
+      realisticConstraints: arabicOverride.realisticConstraints || basePageData.realisticConstraints,
+      howTo: arabicOverride.howTo || basePageData.howTo,
+      faqs: arabicOverride.faqs || basePageData.faqs,
+    };
+  }, [currentPath, lang]);
+
+  // Initial target value & unit based on the landing route
+  const initialRouteData = ROUTES_DATA[currentPath] || ROUTES_DATA['/'];
   const [file, setFile] = useState(null);
   const [fileType, setFileType] = useState(null);
   const [metadata, setMetadata] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [targetValue, setTargetValue] = useState(pageData.defaultTargetValue || 2);
-  const [targetUnit, setTargetUnit] = useState(pageData.defaultTargetUnit || 'MB');
+  const [targetValue, setTargetValue] = useState(initialRouteData.defaultTargetValue || 2);
+  const [targetUnit, setTargetUnit] = useState(initialRouteData.defaultTargetUnit || 'MB');
   const [isProcessing, setIsProcessing] = useState(false);
   const [progressInfo, setProgressInfo] = useState(null);
   const [result, setResult] = useState(null);
@@ -128,15 +133,17 @@ export default function App() {
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
-  // Update preselected target value & unit when navigating between landing pages
+  // Update preselected target value & unit ONLY when navigating to a new route
+  // (Never reset target values on language switch, theme toggle, or input interactions)
   useEffect(() => {
     if (!file) {
-      setTargetValue(pageData.defaultTargetValue);
-      setTargetUnit(pageData.defaultTargetUnit);
+      const routeData = ROUTES_DATA[currentPath] || ROUTES_DATA['/'];
+      setTargetValue(routeData.defaultTargetValue);
+      setTargetUnit(routeData.defaultTargetUnit);
       setErrorMessage('');
       setResult(null);
     }
-  }, [currentPath, pageData, file]);
+  }, [currentPath]);
 
   const targetBytes = parseTargetToBytes(targetValue, targetUnit) || 0;
   const targetFormatted = formatBytes(targetBytes);
@@ -210,8 +217,9 @@ export default function App() {
     setProgressInfo(null);
     setModalConfig((prev) => ({ ...prev, isOpen: false }));
     // Re-apply landing page default targets
-    setTargetValue(pageData.defaultTargetValue);
-    setTargetUnit(pageData.defaultTargetUnit);
+    const defaultData = ROUTES_DATA[currentPath] || ROUTES_DATA['/'];
+    setTargetValue(defaultData.defaultTargetValue);
+    setTargetUnit(defaultData.defaultTargetUnit);
   };
 
   const handleResetResult = () => {
@@ -333,7 +341,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-[#0B1220] dark:text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors">
-      {/* Dynamic SEO Meta Tags, Canonical & JSON-LD Structured Data (FAQPage removed per audit) */}
+      {/* Dynamic SEO Meta Tags, Canonical & JSON-LD Structured Data */}
       <SEO
         title={pageData.title}
         description={pageData.metaDescription}

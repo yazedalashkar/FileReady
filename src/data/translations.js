@@ -129,7 +129,7 @@ export const UI_TRANSLATIONS = {
     maxLimit: 'الحد الأقصى',
     commonLimits: 'أشهر حدود الرفع في المواقع:',
     quickSelectAria: 'اختيار سريع {value} {unit}',
-    unitMb: 'ميجابايت',
+    unitMb: 'ميغابايت',
     unitKb: 'كيلوبايت',
 
     // Dropzone
