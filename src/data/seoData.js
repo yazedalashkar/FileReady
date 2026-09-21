@@ -889,4 +889,26 @@ export const ROUTES_DATA = {
       },
     ],
   },
+
+  '/tools': {
+    path: '/tools',
+    canonical: `${SITE_URL}/tools`,
+    title: 'FileReady Tools — PDF & Image Tools',
+    metaDescription:
+      'Explore FileReady tools for compressing, merging, and preparing PDFs and images for upload.',
+    h1: 'FileReady Tools',
+    subheading:
+      'Explore free, 100% client-side tools for compressing, merging, and preparing PDFs and images.',
+  },
+
+  '/merge-pdf': {
+    path: '/merge-pdf',
+    canonical: `${SITE_URL}/merge-pdf`,
+    title: 'Merge PDF Online — FileReady',
+    metaDescription:
+      'Combine multiple PDF files into one document directly in your browser with FileReady.',
+    h1: 'Merge PDF',
+    subheading:
+      'Combine multiple PDF files into one clean document directly in your browser.',
+  },
 };

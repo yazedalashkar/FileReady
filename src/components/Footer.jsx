@@ -31,6 +31,10 @@ export default function Footer({ lang = 'en' }) {
               {lang === 'ar' ? 'PDF إلى 500KB' : 'PDF to 500KB'}
             </Link>
             <span className="text-slate-300 dark:text-slate-700">•</span>
+            <Link href="/merge-pdf" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-semibold">
+              {lang === 'ar' ? 'دمج PDF' : 'Merge PDF'}
+            </Link>
+            <span className="text-slate-300 dark:text-slate-700">•</span>
             <Link href="/compress-image-to-500kb" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               {lang === 'ar' ? 'صورة إلى 500KB' : 'Image to 500KB'}
             </Link>
@@ -51,6 +55,10 @@ export default function Footer({ lang = 'en' }) {
             <span className="text-slate-300 dark:text-slate-700">•</span>
             <Link href="/reduce-pdf-size" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               {lang === 'ar' ? 'تقليل حجم PDF' : 'Reduce PDF Size'}
+            </Link>
+            <span className="text-slate-300 dark:text-slate-700">•</span>
+            <Link href="/tools" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-semibold">
+              {lang === 'ar' ? 'كافة الأدوات' : 'Tools Hub'}
             </Link>
           </nav>
         </div>

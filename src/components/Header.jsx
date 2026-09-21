@@ -51,8 +51,21 @@ export default function Header({
           </div>
         </Link>
 
-        {/* Controls: Client-Side Badge, Optional PWA Install, Language Switcher, and Theme Toggle */}
+        {/* Controls: Tools Hub Link, Client-Side Badge, Optional PWA Install, Language Switcher, and Theme Toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Tools Hub Navigation Link */}
+          <Link
+            href="/tools"
+            className="h-9 px-2 sm:px-2.5 rounded-xl border border-slate-200/90 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+            title={t.toolsNavTitle || (lang === 'ar' ? 'أدوات FileReady' : 'FileReady Tools')}
+            aria-label={t.toolsNav || (lang === 'ar' ? 'الأدوات' : 'Tools')}
+          >
+            <span className="text-xs">🧰</span>
+            <span className="text-xs font-bold">
+              {t.toolsNav || (lang === 'ar' ? 'الأدوات' : 'Tools')}
+            </span>
+          </Link>
+
           {/* Privacy badge - hidden on very narrow mobile screens (<400px) for comfort */}
           <div className="hidden xs:flex sm:flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-1 rounded-full font-semibold shrink-0">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>

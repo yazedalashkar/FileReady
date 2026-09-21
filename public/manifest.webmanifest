@@ -49,7 +49,7 @@
     },
     {
       "src": "/screenshots/screenshot-desktop.png",
-      "sizes": "1024x640",
+      "sizes": "1440x900",
       "type": "image/png",
       "form_factor": "wide",
       "label": "FileReady on Desktop"
