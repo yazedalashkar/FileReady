@@ -2,7 +2,14 @@ import React from 'react';
 import Link from './Link.jsx';
 import { UI_TRANSLATIONS } from '../data/translations.js';
 
-export default function Header({ theme, setTheme, lang, setLang }) {
+export default function Header({
+  theme,
+  setTheme,
+  lang,
+  setLang,
+  isInstallable = false,
+  onInstall,
+}) {
   const t = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
 
   const toggleTheme = () => {
@@ -44,13 +51,29 @@ export default function Header({ theme, setTheme, lang, setLang }) {
           </div>
         </Link>
 
-        {/* Controls: Client-Side Badge, Language Switcher, and Theme Toggle */}
+        {/* Controls: Client-Side Badge, Optional PWA Install, Language Switcher, and Theme Toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Privacy badge - hidden on very narrow mobile screens (<400px) for comfort */}
           <div className="hidden xs:flex sm:flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-1 rounded-full font-semibold shrink-0">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>{t.clientSideBadge}</span>
           </div>
+
+          {/* Subtle Install Action: ONLY rendered when browser supports PWA installation */}
+          {isInstallable && (
+            <button
+              type="button"
+              onClick={onInstall}
+              className="h-9 px-2 sm:px-2.5 rounded-xl border border-blue-200/90 dark:border-blue-800/80 bg-blue-50/90 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-semibold transition-colors flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+              title={t.installApp || 'Install App'}
+              aria-label={t.installApp || 'Install App'}
+            >
+              <span className="text-xs leading-none">📥</span>
+              <span className="text-[11px] font-bold">
+                {t.installShort || (lang === 'ar' ? 'تثبيت' : 'Install')}
+              </span>
+            </button>
+          )}
 
           {/* Language Switcher */}
           <button

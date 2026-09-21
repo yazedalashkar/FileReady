@@ -13,6 +13,7 @@ import { ROUTES_DATA } from './data/seoData.js';
 import { UI_TRANSLATIONS, ARABIC_ROUTES_CONTENT } from './data/translations.js';
 import { getPdfInfo, compressPdf } from './utils/pdfCompressor.js';
 import { getImageInfo, compressImage } from './utils/imageCompressor.js';
+import { usePWAInstall } from './utils/usePWAInstall.js';
 import {
   getFileType,
   formatBytes,
@@ -57,6 +58,7 @@ export default function App() {
   });
 
   const t = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
+  const { isInstallable, triggerInstall } = usePWAInstall();
 
   // Active page SEO copy and configuration (memoized to prevent reference thrashing)
   const pageData = useMemo(() => {
@@ -350,12 +352,14 @@ export default function App() {
         lang={lang}
       />
 
-      {/* Global Header with Theme & Language Controls */}
+      {/* Global Header with Theme, Language, and Optional Install Controls */}
       <Header
         theme={theme}
         setTheme={setTheme}
         lang={lang}
         setLang={setLang}
+        isInstallable={isInstallable}
+        onInstall={triggerInstall}
       />
 
       <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 space-y-5 sm:space-y-6">

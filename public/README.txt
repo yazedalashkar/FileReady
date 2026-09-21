@@ -1,1 +1,1 @@
-Place your logo image file here with filename logo.png
+Place your icons in public/icons/ and screenshots in public/screenshots/

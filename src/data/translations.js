@@ -15,6 +15,8 @@ export const UI_TRANSLATIONS = {
     themeDarkLabel: 'Dark',
     langEn: 'English',
     langAr: 'العربية',
+    installApp: 'Install App',
+    installShort: 'Install',
 
     // Target Size Input
     targetLabel: 'Target Maximum Size',
@@ -123,6 +125,8 @@ export const UI_TRANSLATIONS = {
     themeDarkLabel: 'داكن',
     langEn: 'English',
     langAr: 'العربية',
+    installApp: 'تثبيت التطبيق',
+    installShort: 'تثبيت',
 
     // Target Size Input
     targetLabel: 'الحد الأقصى المطلوب للحجم',

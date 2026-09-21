@@ -5,7 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FileReady — Compress PDF & Images to the Size You Need</title>
     <meta name="description" content="Compress PDFs and images to a specific target size. Prepare files for strict upload limits like 2MB, 1MB, or 500KB with client-side processing." />
+    
+    <!-- PWA & Mobile Meta Tags -->
+    <meta name="theme-color" content="#2563EB" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="FileReady" />
+
+    <!-- Icons & Manifest -->
     <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Theme & Language Initialization (Prevents FOUC) -->
     <script>
       (function() {
         try {
@@ -26,5 +39,12 @@
   <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen antialiased transition-colors">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function() {});
+        });
+      }
+    </script>
   </body>
 </html>
