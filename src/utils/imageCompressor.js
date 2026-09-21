@@ -61,8 +61,7 @@ export async function getImageInfo(file) {
   const isPng = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
   const hasTransparency = isPng ? checkTransparency(img) : false;
 
-  return {
-    width: img.naturalWidth || img.width,
+  return {\n    width: img.naturalWidth || img.width,
     height: img.naturalHeight || img.height,
     hasTransparency,
   };
@@ -101,10 +100,15 @@ async function renderCanvasToBlob(img, scale, mimeType, quality, fillWhite = tru
 /**
  * Phase 1 JPEG Tiers:
  * Strictly 100% original dimensions (scale 1.0).
- * Tests JPEG quality from maximum visual clarity (0.92) down to 0.35.
- * Used FIRST so dimensions are NEVER reduced if quality tuning alone reaches the target!
+ * Includes higher-quality tiers above Q0.92 (Q0.99, Q0.97, Q0.95, Q0.93, Q0.92)
+ * so that gentle reductions (e.g. 12.37 MB -> 10 MB) achieve maximum visual fidelity
+ * and get as close as reasonably possible to the requested target.
  */
 const JPEG_PHASE1_FULL_RES_TIERS = [
+  { scale: 1.00, quality: 0.99, label: '100% / Q99 (Near Lossless)' },
+  { scale: 1.00, quality: 0.97, label: '100% / Q97 (Maximum)' },
+  { scale: 1.00, quality: 0.95, label: '100% / Q95 (Ultra High)' },
+  { scale: 1.00, quality: 0.93, label: '100% / Q93 (Very High)' },
   { scale: 1.00, quality: 0.92, label: '100% / Q92 (Ultra)' },
   { scale: 1.00, quality: 0.88, label: '100% / Q88 (Ultra)' },
   { scale: 1.00, quality: 0.85, label: '100% / Q85 (Very High)' },
@@ -186,6 +190,7 @@ async function searchTiers(img, tiers, mimeType, fillWhite, targetBytes, onProgr
   let low = 0;
   let high = tiers.length - 1;
   let iterations = 0;
+  const maxIterations = 7; // Guarantees complete convergence for arrays up to 128 tiers
 
   let bestCompliantBlob = null;
   let bestCompliantTier = null;
@@ -193,17 +198,17 @@ async function searchTiers(img, tiers, mimeType, fillWhite, targetBytes, onProgr
   let smallestSize = Infinity;
   let smallestTier = null;
 
-  while (low <= high && iterations < 6) {
+  while (low <= high && iterations < maxIterations) {
     iterations++;
     const mid = Math.floor((low + high) / 2);
     const tier = tiers[mid];
 
-    const currentPct = Math.round(startPct + (iterations / 6) * (endPct - startPct));
+    const currentPct = Math.round(startPct + (iterations / maxIterations) * (endPct - startPct));
     onProgress?.({
       stage: `Evaluating ${tier.label}...`,
       percent: currentPct,
       attempt: iterations,
-      totalAttempts: 6,
+      totalAttempts: maxIterations,
     });
 
     const blob = await renderCanvasToBlob(img, tier.scale, mimeType, tier.quality, fillWhite);

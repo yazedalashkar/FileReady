@@ -173,10 +173,10 @@ export default function App() {
     if (
       currentPath === '/' &&
       detectedType !== 'PDF' &&
-      selectedFile.size < 1.5 * 1024 * 1024
+      selectedFile.size < 1.5 * 1000 * 1000
     ) {
       setTargetUnit('KB');
-      const halfKb = Math.max(10, Math.round(selectedFile.size / 2048 / 10) * 10);
+      const halfKb = Math.max(10, Math.round(selectedFile.size / 2000 / 10) * 10);
       setTargetValue(halfKb);
     }
 

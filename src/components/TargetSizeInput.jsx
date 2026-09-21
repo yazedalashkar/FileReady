@@ -38,9 +38,9 @@ export default function TargetSizeInput({
     setTargetUnit(newUnit);
     // Keep target value logically reasonable when switching units
     if (newUnit === 'KB' && targetValue <= 5 && targetValue > 0) {
-      setTargetValue(Math.round(targetValue * 1024));
+      setTargetValue(Math.round(targetValue * 1000));
     } else if (newUnit === 'MB' && targetValue >= 100) {
-      setTargetValue(parseFloat((targetValue / 1024).toFixed(2)));
+      setTargetValue(parseFloat((targetValue / 1000).toFixed(2)));
     }
   };
 

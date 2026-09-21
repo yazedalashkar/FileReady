@@ -225,7 +225,7 @@ export const ROUTES_DATA = {
     defaultTargetUnit: 'MB',
     targetBadge: 'Target: Under 1 MB',
     targetSummary:
-      'A 1MB limit leaves little room for uncompressed images. FileReady applies adaptive compression to fit under 1,048,576 bytes with realistic quality safeguards.',
+      'A 1MB limit leaves little room for uncompressed images. FileReady applies adaptive compression to fit under 1,000,000 bytes with realistic quality safeguards.',
     realisticConstraints: [
       '1MB is a strict ceiling often used on government and official intake forms.',
       'Single-page and short scanned PDFs are generally easier to fit within a 1MB limit while maintaining readability.',
@@ -241,7 +241,7 @@ export const ROUTES_DATA = {
       {
         step: 2,
         title: '1MB target active',
-        description: 'The target size is locked to 1 MB (1,048,576 bytes).',
+        description: 'The target size is locked to 1 MB (1,000,000 bytes).',
       },
       {
         step: 3,
@@ -343,7 +343,7 @@ export const ROUTES_DATA = {
       {
         step: 2,
         title: 'Target locked to 500KB',
-        description: 'FileReady sets the budget to 512,000 bytes.',
+        description: 'FileReady sets the budget to 500,000 bytes.',
       },
       {
         step: 3,
@@ -365,7 +365,7 @@ export const ROUTES_DATA = {
       {
         question: 'How does FileReady verify the 500KB limit?',
         answer:
-          'After generating the PDF in memory, FileReady inspects the real Blob byte count. It will only display success if the actual file is strictly under 500KB (512,000 bytes).',
+          'After generating the PDF in memory, FileReady inspects the real Blob byte count. It will only display success if the actual file is strictly under 500KB (500,000 bytes).',
       },
       {
         question: 'Why do some compressors produce blurry 500KB PDFs?',
@@ -737,7 +737,7 @@ export const ROUTES_DATA = {
       {
         step: 2,
         title: 'Target pre-set to 500KB',
-        description: 'The target size is locked to 500 KB (512,000 bytes).',
+        description: 'The target size is locked to 500 KB (500,000 bytes).',
       },
       {
         step: 3,
@@ -828,7 +828,7 @@ export const ROUTES_DATA = {
       {
         step: 2,
         title: '1MB target pre-selected',
-        description: 'Target is pre-configured to 1 MB (1,048,576 bytes).',
+        description: 'Target is pre-configured to 1 MB (1,000,000 bytes).',
       },
       {
         step: 3,
