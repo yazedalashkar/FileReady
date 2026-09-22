@@ -12,6 +12,7 @@ import InternalLinks from './components/InternalLinks.jsx';
 import ToolsHub from './components/ToolsHub.jsx';
 import MergePdfTool from './components/MergePdfTool.jsx';
 import FileInspector from './components/FileInspector.jsx';
+import SmartRequirements from './components/SmartRequirements.jsx';
 import { ROUTES_DATA } from './data/seoData.js';
 import { UI_TRANSLATIONS, ARABIC_ROUTES_CONTENT } from './data/translations.js';
 import { getPdfInfo, compressPdf } from './utils/pdfCompressor.js';
@@ -136,7 +137,30 @@ export default function App() {
     };
 
     window.addEventListener('popstate', handleLocationChange);
-    return () => window.removeEventListener('popstate', handleLocationChange);
+    const handleSyncTarget = (value, unit) => {
+    setTargetValue(value);
+    setTargetUnit(unit);
+  };
+
+  const handleMakeReady = (evalResult) => {
+    const fixableRule = evalResult?.fixableRules?.find((r) => r.fixType === 'COMPRESS_SIZE');
+    if (fixableRule && fixableRule.targetBytes) {
+      const targetB = fixableRule.targetBytes;
+      if (targetB < 1000 * 1000) {
+        setTargetUnit('KB');
+        setTargetValue(Math.round(targetB / 1000));
+      } else {
+        setTargetUnit('MB');
+        const mb = Math.round((targetB / (1000 * 1000)) * 10) / 10;
+        setTargetValue(mb);
+      }
+      handleProcessClick();
+    } else {
+      handleProcessClick();
+    }
+  };
+
+  return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
   // Update preselected target value & unit ONLY when navigating to a new route
@@ -191,16 +215,15 @@ export default function App() {
       setTargetValue(halfKb);
     }
 
-    // Inspect file metadata & deep readiness checks
+    // Step 1: Inspect baseline file metadata needed for compression
+    let metadataInfo = null;
     try {
-      const inspection = await inspectFile(selectedFile, { targetBytes, targetFormatted });
-      setInspectionResult(inspection);
-
       if (detectedType === 'PDF') {
-        setMetadata({ numPages: inspection.pdf?.pageCount ?? 1 });
+        metadataInfo = await getPdfInfo(selectedFile);
       } else {
-        setMetadata(inspection.image);
+        metadataInfo = await getImageInfo(selectedFile);
       }
+      setMetadata(metadataInfo);
     } catch (err) {
       console.warn('Metadata inspection notice:', err);
       const msg = (err?.message || '').toLowerCase();
@@ -210,6 +233,18 @@ export default function App() {
         setErrorMessage(t.errCantRead);
       }
       setMetadata(null);
+    }
+
+    // Step 2: Run deep file inspection for readiness (ISOLATED - NEVER THROWS OR SETS ERROR BANNER)
+    try {
+      const inspection = await inspectFile(selectedFile, {
+        targetBytes,
+        targetFormatted,
+        metadata: metadataInfo,
+      });
+      setInspectionResult(inspection);
+    } catch (inspectErr) {
+      console.warn('Deep inspection error (non-fatal):', inspectErr);
       setInspectionResult(null);
     } finally {
       setIsAnalyzing(false);
@@ -357,6 +392,29 @@ export default function App() {
     });
   };
 
+  const handleSyncTarget = (value, unit) => {
+    setTargetValue(value);
+    setTargetUnit(unit);
+  };
+
+  const handleMakeReady = (evalResult) => {
+    const fixableRule = evalResult?.fixableRules?.find((r) => r.fixType === 'COMPRESS_SIZE');
+    if (fixableRule && fixableRule.targetBytes) {
+      const targetB = fixableRule.targetBytes;
+      if (targetB < 1000 * 1000) {
+        setTargetUnit('KB');
+        setTargetValue(Math.round(targetB / 1000));
+      } else {
+        setTargetUnit('MB');
+        const mb = Math.round((targetB / (1000 * 1000)) * 10) / 10;
+        setTargetValue(mb);
+      }
+      handleProcessClick();
+    } else {
+      handleProcessClick();
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-[#0B1220] dark:text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors">
       {/* Dynamic SEO Meta Tags, Canonical & JSON-LD Structured Data */}
@@ -451,6 +509,16 @@ export default function App() {
                     targetBytes={targetBytes}
                     targetFormatted={targetFormatted}
                     result={result}
+                    lang={lang}
+                  />
+                )}
+
+                {inspectionResult && (
+                  <SmartRequirements
+                    inspection={inspectionResult}
+                    targetBytes={targetBytes}
+                    onSyncTarget={handleSyncTarget}
+                    onMakeReady={handleMakeReady}
                     lang={lang}
                   />
                 )}
