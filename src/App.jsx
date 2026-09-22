@@ -11,6 +11,7 @@ import FAQAccordion from './components/FAQAccordion.jsx';
 import InternalLinks from './components/InternalLinks.jsx';
 import ToolsHub from './components/ToolsHub.jsx';
 import MergePdfTool from './components/MergePdfTool.jsx';
+import FileInspector from './components/FileInspector.jsx';
 import { ROUTES_DATA } from './data/seoData.js';
 import { UI_TRANSLATIONS, ARABIC_ROUTES_CONTENT } from './data/translations.js';
 import { getPdfInfo, compressPdf } from './utils/pdfCompressor.js';
@@ -87,6 +88,7 @@ export default function App() {
   const [file, setFile] = useState(null);
   const [fileType, setFileType] = useState(null);
   const [metadata, setMetadata] = useState(null);
+  const [inspectionResult, setInspectionResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [targetValue, setTargetValue] = useState(initialRouteData.defaultTargetValue || 2);
   const [targetUnit, setTargetUnit] = useState(initialRouteData.defaultTargetUnit || 'MB');
@@ -164,6 +166,7 @@ export default function App() {
     setResult(null);
     setMetadata(null);
     setProgressInfo(null);
+    setInspectionResult(null);
 
     if (!selectedFile) return;
 
@@ -188,14 +191,15 @@ export default function App() {
       setTargetValue(halfKb);
     }
 
-    // Inspect file metadata
+    // Inspect file metadata & deep readiness checks
     try {
+      const inspection = await inspectFile(selectedFile, { targetBytes, targetFormatted });
+      setInspectionResult(inspection);
+
       if (detectedType === 'PDF') {
-        const info = await getPdfInfo(selectedFile);
-        setMetadata({ numPages: info.numPages });
+        setMetadata({ numPages: inspection.pdf?.pageCount ?? 1 });
       } else {
-        const info = await getImageInfo(selectedFile);
-        setMetadata(info);
+        setMetadata(inspection.image);
       }
     } catch (err) {
       console.warn('Metadata inspection notice:', err);
@@ -206,6 +210,7 @@ export default function App() {
         setErrorMessage(t.errCantRead);
       }
       setMetadata(null);
+      setInspectionResult(null);
     } finally {
       setIsAnalyzing(false);
     }
@@ -218,6 +223,7 @@ export default function App() {
     setFile(null);
     setFileType(null);
     setMetadata(null);
+    setInspectionResult(null);
     setIsAnalyzing(false);
     setResult(null);
     setErrorMessage('');
@@ -438,21 +444,33 @@ export default function App() {
 
             {/* State 4, 5, 6, 7, 8: Analysis, Processing & Results */}
             {file && !isAnalyzing && (
-              <AnalysisCard
-                file={file}
-                fileType={fileType}
-                metadata={metadata}
-                targetBytes={targetBytes}
-                targetFormatted={targetFormatted}
-                isProcessing={isProcessing}
-                progressInfo={progressInfo}
-                result={result}
-                onProcess={handleProcessClick}
-                onReset={handleReset}
-                onResetResult={handleResetResult}
-                onRequestJpgConversion={handleRequestJpgConversion}
-                lang={lang}
-              />
+              <>
+                {inspectionResult && (
+                  <FileInspector
+                    inspection={inspectionResult}
+                    targetBytes={targetBytes}
+                    targetFormatted={targetFormatted}
+                    result={result}
+                    lang={lang}
+                  />
+                )}
+
+                <AnalysisCard
+                  file={file}
+                  fileType={fileType}
+                  metadata={metadata}
+                  targetBytes={targetBytes}
+                  targetFormatted={targetFormatted}
+                  isProcessing={isProcessing}
+                  progressInfo={progressInfo}
+                  result={result}
+                  onProcess={handleProcessClick}
+                  onReset={handleReset}
+                  onResetResult={handleResetResult}
+                  onRequestJpgConversion={handleRequestJpgConversion}
+                  lang={lang}
+                />
+              </>
             )}
 
             {/* Informational Context & Real Constraints */}
