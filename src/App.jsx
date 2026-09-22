@@ -154,7 +154,7 @@ export default function App() {
         const mb = Math.round((targetB / (1000 * 1000)) * 10) / 10;
         setTargetValue(mb);
       }
-      handleProcessClick();
+      handleProcessClick(targetB);
     } else {
       handleProcessClick();
     }
@@ -284,7 +284,8 @@ export default function App() {
   };
 
   const executeCompression = async (options = {}) => {
-    if (!file || !targetBytes) return;
+    const bytesToUse = options.targetBytes || targetBytes;
+    if (!file || !bytesToUse) return;
 
     setModalConfig((prev) => ({ ...prev, isOpen: false }));
     setIsProcessing(true);
@@ -295,7 +296,7 @@ export default function App() {
       let compressedData = null;
 
       if (fileType === 'PDF') {
-        const targetMB = targetBytes / (1024 * 1024);
+        const targetMB = bytesToUse / (1024 * 1024);
         compressedData = await compressPdf(file, targetMB, (info) => {
           let stageLabel = t.preparingTitle;
           if (info.stage === 'Rendering and optimizing pages...') {
@@ -307,14 +308,14 @@ export default function App() {
           }
           setProgressInfo({ ...info, stage: stageLabel });
         });
-        compressedData.targetFormatted = formatBytes(targetBytes);
+        compressedData.targetFormatted = formatBytes(bytesToUse);
         compressedData.originalSizeFormatted = formatBytes(file.size);
         compressedData.finalSizeFormatted = formatBytes(compressedData.finalSizeBytes);
       } else {
         // Image compression (JPG / PNG)
         compressedData = await compressImage(
           file,
-          targetBytes,
+          bytesToUse,
           (info) => {
             let stageLabel = t.processingImage;
             if (info.stage === 'Testing compression levels at full dimensions...') {
@@ -356,14 +357,15 @@ export default function App() {
     }
   };
 
-  const handleProcessClick = () => {
-    if (!file || !targetBytes) return;
+  const handleProcessClick = (overrideBytes = null) => {
+    const bytesToUse = overrideBytes || targetBytes;
+    if (!file || !bytesToUse) return;
 
-    if (file.size <= targetBytes) {
+    if (file.size <= bytesToUse) {
       return; // Already compliant
     }
 
-    const severity = calculateSeverityFromBytes(file.size, targetBytes);
+    const severity = calculateSeverityFromBytes(file.size, bytesToUse);
     if (severity.level === 'STRONG') {
       const msg = fileType === 'PDF' ? t.modalStrongPdfMsg : t.modalStrongImgMsg;
 
@@ -373,10 +375,10 @@ export default function App() {
         message: msg,
         confirmText: t.modalContinueBtn,
         cancelText: t.modalCancelBtn,
-        onConfirm: () => executeCompression(),
+        onConfirm: () => executeCompression({ targetBytes: bytesToUse }),
       });
     } else {
-      executeCompression();
+      executeCompression({ targetBytes: bytesToUse });
     }
   };
 
@@ -409,7 +411,7 @@ export default function App() {
         const mb = Math.round((targetB / (1000 * 1000)) * 10) / 10;
         setTargetValue(mb);
       }
-      handleProcessClick();
+      handleProcessClick(targetB);
     } else {
       handleProcessClick();
     }

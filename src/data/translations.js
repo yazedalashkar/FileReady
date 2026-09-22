@@ -292,6 +292,20 @@ export const UI_TRANSLATIONS = {
     ariaRequirementsTable: 'Requirements compliance comparison',
     ariaMakeReady: 'Make file ready for submission',
     ariaPresetBtn: 'Select size preset {size}',
+    // Consolidated Primary Tools
+    toolTitleCompressPdf: 'Compress PDF',
+    toolDescCompressPdf: 'Compress any PDF to exact portal limits (500 KB, 1 MB, 2 MB, 5 MB, 10 MB, or custom).',
+    toolBadgeCompressPdf: '500 KB – 10 MB',
+    toolTitleCompressImage: 'Compress Image',
+    toolDescCompressImage: 'Reduce JPG and PNG image files to exact target sizes without visible quality loss.',
+    toolBadgeCompressImage: 'JPG • PNG',
+
+    // Smart Requirements Real Interaction
+    reqFixableViaCompression: 'Fixable via compression',
+    reqCannotFixAutomatically: 'Cannot fix automatically',
+    reqUnfixableWarning: 'Note: {items} cannot be changed automatically and require editing the original document.',
+    reqMaxWidth: 'Max Width (px)',
+    reqMaxHeight: 'Max Height (px)',
   },
 
   ar: {
@@ -581,6 +595,20 @@ export const UI_TRANSLATIONS = {
     ariaRequirementsTable: 'مقارنة مطابقة متطلبات الرفع',
     ariaMakeReady: 'تجهيز الملف للتقديم',
     ariaPresetBtn: 'اختيار الحجم المسبق {size}',
+    // Consolidated Primary Tools
+    toolTitleCompressPdf: 'ضغط ملفات PDF',
+    toolDescCompressPdf: 'ضغط ملفات PDF لأي حد مطلوب لبوابات التقديم (500 كيلوبايت، 1 أو 2 أو 5 ميجابايت أو حجم مخصص).',
+    toolBadgeCompressPdf: '500 ك.ب – 10 م.ب',
+    toolTitleCompressImage: 'ضغط الصور',
+    toolDescCompressImage: 'تقليل حجم صور JPG و PNG لحدود الرفع المطلوبة مع الحفاظ على الوضوح.',
+    toolBadgeCompressImage: 'JPG • PNG',
+
+    // Smart Requirements Real Interaction
+    reqFixableViaCompression: 'قابل للإصلاح عبر الضغط',
+    reqCannotFixAutomatically: 'غير قابل للإصلاح التلقائي',
+    reqUnfixableWarning: 'ملاحظة: {items} لا يمكن تعديلها تلقائياً وتتطلب تعديل المستند الأصلي.',
+    reqMaxWidth: 'أقصى عرض (بكسل)',
+    reqMaxHeight: 'أقصى ارتفاع (بكسل)',
   },
 };
 

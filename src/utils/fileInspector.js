@@ -625,11 +625,11 @@ export async function inspectFile(file, options = {}) {
 
 /**
  * Evaluates a file's inspection result against customizable submission requirements.
- * Returns structured rules with PASSED, FAILED, or UNDETERMINED status.
+ * Returns structured rules with PASSED, FAILED, or UNDETERMINED status, plus fixability info.
  */
 export function evaluateRequirements(inspection, requirements = {}) {
   if (!inspection || !inspection.file) {
-    return { isCompliant: false, hasFailures: false, rules: [], fixableRules: [] };
+    return { isCompliant: false, hasFailures: false, rules: [], fixableRules: [], unfixableRules: [] };
   }
 
   const file = inspection.file;
@@ -643,7 +643,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
     rules.push({
       id: 'max_size',
       labelKey: 'reqMaxSize',
-      requiredText: `≤ ${formatBytes(requirements.maxSizeBytes)}`,
+      conditionText: `≤ ${formatBytes(requirements.maxSizeBytes)}`,
       actualText: formatBytes(file.size),
       status: passed ? 'PASSED' : 'FAILED',
       autoFixable: true,
@@ -658,7 +658,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
     rules.push({
       id: 'min_size',
       labelKey: 'reqMinSize',
-      requiredText: `≥ ${formatBytes(requirements.minSizeBytes)}`,
+      conditionText: `≥ ${formatBytes(requirements.minSizeBytes)}`,
       actualText: formatBytes(file.size),
       status: passed ? 'PASSED' : 'FAILED',
       autoFixable: false,
@@ -668,14 +668,15 @@ export function evaluateRequirements(inspection, requirements = {}) {
   // Rule 3: Required Format
   if (requirements.format && requirements.format !== 'ANY') {
     const passed = file.format === requirements.format;
+    const isPngToJpg = file.format === 'PNG' && requirements.format === 'JPG';
     rules.push({
       id: 'format',
       labelKey: 'reqFormat',
-      requiredText: requirements.format,
+      conditionText: requirements.format,
       actualText: file.format,
       status: passed ? 'PASSED' : 'FAILED',
-      autoFixable: file.format === 'PNG' && requirements.format === 'JPG',
-      fixType: 'CONVERT_FORMAT',
+      autoFixable: isPngToJpg,
+      fixType: isPngToJpg ? 'CONVERT_JPG' : null,
     });
   }
 
@@ -687,7 +688,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
         rules.push({
           id: 'max_pages',
           labelKey: 'reqMaxPages',
-          requiredText: `≤ ${requirements.maxPages}`,
+          conditionText: `≤ ${requirements.maxPages}`,
           actualText: `${pdf.pageCount}`,
           status: passed ? 'PASSED' : 'FAILED',
           autoFixable: false,
@@ -696,7 +697,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
         rules.push({
           id: 'max_pages',
           labelKey: 'reqMaxPages',
-          requiredText: `≤ ${requirements.maxPages}`,
+          conditionText: `≤ ${requirements.maxPages}`,
           actualText: '—',
           status: 'UNDETERMINED',
           autoFixable: false,
@@ -713,7 +714,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
         rules.push({
           id: 'min_pages',
           labelKey: 'reqMinPages',
-          requiredText: `≥ ${requirements.minPages}`,
+          conditionText: `≥ ${requirements.minPages}`,
           actualText: `${pdf.pageCount}`,
           status: passed ? 'PASSED' : 'FAILED',
           autoFixable: false,
@@ -722,7 +723,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
         rules.push({
           id: 'min_pages',
           labelKey: 'reqMinPages',
-          requiredText: `≥ ${requirements.minPages}`,
+          conditionText: `≥ ${requirements.minPages}`,
           actualText: '—',
           status: 'UNDETERMINED',
           autoFixable: false,
@@ -741,7 +742,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
         rules.push({
           id: 'page_size',
           labelKey: 'reqPageSize',
-          requiredText: requirements.pageSize,
+          conditionText: requirements.pageSize,
           actualText: pdf.hasMixedPageSizes ? `${pdf.dominantPageSize} (Mixed)` : pdf.dominantPageSize,
           status: passed ? 'PASSED' : 'FAILED',
           autoFixable: false,
@@ -750,7 +751,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
         rules.push({
           id: 'page_size',
           labelKey: 'reqPageSize',
-          requiredText: requirements.pageSize,
+          conditionText: requirements.pageSize,
           actualText: '—',
           status: 'UNDETERMINED',
           autoFixable: false,
@@ -767,7 +768,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
       rules.push({
         id: 'orientation',
         labelKey: 'reqOrientation',
-        requiredText: requirements.orientation === 'portrait' ? 'reqOrientationPortrait' : 'reqOrientationLandscape',
+        conditionText: requirements.orientation === 'portrait' ? 'reqOrientationPortrait' : 'reqOrientationLandscape',
         actualText: orientation === 'portrait' ? 'reqOrientationPortrait' : 'reqOrientationLandscape',
         status: passed ? 'PASSED' : 'FAILED',
         isTranslationKey: true,
@@ -777,7 +778,7 @@ export function evaluateRequirements(inspection, requirements = {}) {
       rules.push({
         id: 'orientation',
         labelKey: 'reqOrientation',
-        requiredText: requirements.orientation === 'portrait' ? 'reqOrientationPortrait' : 'reqOrientationLandscape',
+        conditionText: requirements.orientation === 'portrait' ? 'reqOrientationPortrait' : 'reqOrientationLandscape',
         actualText: '—',
         status: 'UNDETERMINED',
         isTranslationKey: true,
@@ -798,17 +799,17 @@ export function evaluateRequirements(inspection, requirements = {}) {
       rules.push({
         id: 'max_dimensions',
         labelKey: 'reqMaxDimensions',
-        requiredText: reqParts.join(', '),
+        conditionText: reqParts.join(', '),
         actualText: `${image.width} × ${image.height} px`,
         status: passed ? 'PASSED' : 'FAILED',
         autoFixable: true,
-        fixType: 'COMPRESS_IMAGE',
+        fixType: 'COMPRESS_SIZE',
       });
     } else {
       rules.push({
         id: 'max_dimensions',
         labelKey: 'reqMaxDimensions',
-        requiredText: '—',
+        conditionText: '—',
         actualText: '—',
         status: 'UNDETERMINED',
         autoFixable: false,
@@ -819,11 +820,13 @@ export function evaluateRequirements(inspection, requirements = {}) {
   const isCompliant = rules.length > 0 && rules.every((r) => r.status === 'PASSED');
   const hasFailures = rules.some((r) => r.status === 'FAILED');
   const fixableRules = rules.filter((r) => r.status === 'FAILED' && r.autoFixable);
+  const unfixableRules = rules.filter((r) => r.status === 'FAILED' && !r.autoFixable);
 
   return {
     isCompliant,
     hasFailures,
     rules,
     fixableRules,
+    unfixableRules,
   };
 }

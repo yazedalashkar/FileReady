@@ -7,70 +7,28 @@ export default function ToolsHub({ lang = 'en' }) {
 
   const pdfTools = [
     {
+      path: '/',
+      title: t.toolTitleCompressPdf,
+      badge: t.toolBadgeCompressPdf,
+      description: t.toolDescCompressPdf,
+      icon: '⚡',
+    },
+    {
       path: '/merge-pdf',
       title: t.toolTitleMergePdf,
       badge: t.toolBadgeMergePdf,
       description: t.toolDescMergePdf,
       icon: '📑',
     },
-    {
-      path: '/compress-pdf-to-2mb',
-      title: t.toolTitlePdf2Mb,
-      badge: t.toolBadgePdf2Mb,
-      description: t.toolDescPdf2Mb,
-      icon: '📄',
-    },
-    {
-      path: '/compress-pdf-to-1mb',
-      title: t.toolTitlePdf1Mb,
-      badge: t.toolBadgePdf1Mb,
-      description: t.toolDescPdf1Mb,
-      icon: '📄',
-    },
-    {
-      path: '/compress-pdf-to-500kb',
-      title: t.toolTitlePdf500Kb,
-      badge: t.toolBadgePdf500Kb,
-      description: t.toolDescPdf500Kb,
-      icon: '📄',
-    },
-    {
-      path: '/pdf-too-large-to-upload',
-      title: t.toolTitlePdfTooLarge,
-      badge: t.toolBadgePdfTooLarge,
-      description: t.toolDescPdfTooLarge,
-      icon: '💡',
-    },
-    {
-      path: '/compress-scanned-pdf',
-      title: t.toolTitlePdfScanned,
-      badge: t.toolBadgePdfScanned,
-      description: t.toolDescPdfScanned,
-      icon: '🖨️',
-    },
-    {
-      path: '/reduce-pdf-size',
-      title: t.toolTitlePdfReduce,
-      badge: t.toolBadgePdfReduce,
-      description: t.toolDescPdfReduce,
-      icon: '⚡',
-    },
   ];
 
   const imageTools = [
     {
-      path: '/compress-image-to-500kb',
-      title: t.toolTitleImage500Kb,
-      badge: t.toolBadgeImage500Kb,
-      description: t.toolDescImage500Kb,
+      path: '/',
+      title: t.toolTitleCompressImage,
+      badge: t.toolBadgeCompressImage,
+      description: t.toolDescCompressImage,
       icon: '🖼️',
-    },
-    {
-      path: '/compress-image-to-1mb',
-      title: t.toolTitleImage1Mb,
-      badge: t.toolBadgeImage1Mb,
-      description: t.toolDescImage1Mb,
-      icon: '📸',
     },
   ];
 
@@ -103,7 +61,7 @@ export default function ToolsHub({ lang = 'en' }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {pdfTools.map((tool) => (
             <Link
-              key={tool.path}
+              key={tool.title}
               href={tool.path}
               className="p-4 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-blue-500/80 dark:hover:border-blue-500/80 hover:bg-blue-50/20 dark:hover:bg-blue-950/20 rounded-2xl transition-all block group shadow-2xs text-start"
             >
@@ -138,7 +96,7 @@ export default function ToolsHub({ lang = 'en' }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {imageTools.map((tool) => (
             <Link
-              key={tool.path}
+              key={tool.title}
               href={tool.path}
               className="p-4 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-blue-500/80 dark:hover:border-blue-500/80 hover:bg-blue-50/20 dark:hover:bg-blue-950/20 rounded-2xl transition-all block group shadow-2xs text-start"
             >
