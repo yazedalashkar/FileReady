@@ -116,7 +116,7 @@ export async function normalizePdfPages(fileOrBytes, options = {}, onProgress) {
   for (let i = 0; i < totalPages; i++) {
     const pageNum = i + 1;
     onProgress?.({
-      stage: ,
+      stage: `Normalizing page ${pageNum} of ${totalPages}...`,
       percent: Math.round(20 + ((i) / totalPages) * 60),
       current: pageNum,
       total: totalPages,
