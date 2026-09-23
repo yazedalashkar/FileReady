@@ -15,6 +15,7 @@ import FileInspector from './components/FileInspector.jsx';
 import SmartRequirements from './components/SmartRequirements.jsx';
 import FileReadinessWorkflow from './components/FileReadinessWorkflow.jsx';
 import { inspectFile } from './utils/fileInspector.js';
+import { trimPdfPages, normalizePdfPages } from './utils/pdfNormalizer.js';
 import { ROUTES_DATA } from './data/seoData.js';
 import { UI_TRANSLATIONS, ARABIC_ROUTES_CONTENT } from './data/translations.js';
 import { getPdfInfo, compressPdf } from './utils/pdfCompressor.js';
@@ -348,9 +349,9 @@ export default function App() {
     setProgressInfo(null);
   };
 
-  const executeCompression = async (options = {}) => {
-    const bytesToUse = options.targetBytes || targetBytes;
-    if (!file || !bytesToUse) return;
+  const executeWorkflow = async (options = {}) => {
+    const bytesToUse = options.maxSizeBytes || options.targetBytes || targetBytes;
+    if (!file) return;
 
     setModalConfig((prev) => ({ ...prev, isOpen: false }));
     setIsProcessing(true);
@@ -361,21 +362,107 @@ export default function App() {
       let compressedData = null;
 
       if (fileType === 'PDF') {
-        const targetMB = bytesToUse / (1024 * 1024);
-        compressedData = await compressPdf(file, targetMB, (info) => {
-          let stageLabel = t.preparingTitle;
-          if (info.stage === 'Rendering and optimizing pages...') {
-            stageLabel = t.optimizingStep
-              .replace('{current}', info.current || 1)
-              .replace('{total}', info.total || metadata?.numPages || 1);
-          } else if (info.stage === 'Measuring final PDF size...') {
-            stageLabel = t.verifyingTitle;
-          }
-          setProgressInfo({ ...info, stage: stageLabel });
+        let workingBuffer = await file.arrayBuffer();
+
+        // 1. Safe Page Trimming (if requested and confirmed by user)
+        if (options.selectedPageIndices && options.selectedPageIndices.length > 0) {
+          setProgressInfo({
+            stage: t.trimmingPages || 'Extracting selected pages...',
+            percent: 15,
+          });
+          workingBuffer = await trimPdfPages(workingBuffer, options.selectedPageIndices);
+        }
+
+        // 2. Normalization: Page Size (A4, etc.) & Orientation (Portrait / Landscape)
+        const needsPageSize = options.pageSize && options.pageSize !== 'ANY';
+        const needsOrientation = options.orientation && options.orientation !== 'ANY';
+
+        if (needsPageSize || needsOrientation) {
+          setProgressInfo({
+            stage: t.normalizingPages || 'Normalizing page dimensions and orientation...',
+            percent: 25,
+          });
+          workingBuffer = await normalizePdfPages(
+            workingBuffer,
+            { pageSize: options.pageSize, orientation: options.orientation },
+            (info) => {
+              setProgressInfo({
+                stage: info.current && info.total
+                  ? `${t.normalizingPages || 'Normalizing page'} (${info.current}/${info.total})...`
+                  : (t.normalizingPages || 'Normalizing page size and orientation...'),
+                percent: Math.min(60, Math.round(20 + (info.percent || 0) * 0.4)),
+                current: info.current,
+                total: info.total,
+              });
+            }
+          );
+        }
+
+        // 3. Compression: check if size reduction is still required
+        const currentBytes = workingBuffer.byteLength;
+        const targetMB = bytesToUse ? bytesToUse / (1024 * 1024) : null;
+
+        if (bytesToUse && currentBytes > bytesToUse) {
+          const workingBlob = new Blob([workingBuffer], { type: 'application/pdf' });
+          const workingFile = new File([workingBlob], file.name, { type: 'application/pdf' });
+
+          compressedData = await compressPdf(workingFile, targetMB, (info) => {
+            let stageLabel = t.preparingTitle;
+            if (info.current && info.total) {
+              stageLabel = (t.optimizingStep || 'Compressing page {current} of {total}...')
+                .replace('{current}', info.current)
+                .replace('{total}', info.total);
+            } else if (info.percent >= 90 && info.percent < 100) {
+              stageLabel = t.verifyingTitle || 'Verifying final size...';
+            } else if (info.percent === 100) {
+              stageLabel = t.statusReadyAllPassed || 'File is ready';
+            } else if (info.stage) {
+              stageLabel = info.stage;
+            }
+            setProgressInfo({ ...info, stage: stageLabel });
+          });
+        } else {
+          // The trimmed and/or normalized PDF already meets the target size
+          const finalBlob = new Blob([workingBuffer], { type: 'application/pdf' });
+          const cleanBaseName = file.name
+            .replace(/\.pdf$/i, '')
+            .replace(/[^a-zA-Z0-9_\u0600-\u06FF-]/g, '_');
+          const fileName = `${cleanBaseName}-fileready.pdf`;
+          const downloadUrl = URL.createObjectURL(finalBlob);
+
+          compressedData = {
+            blob: finalBlob,
+            finalSizeBytes: finalBlob.size,
+            finalSizeMB: (finalBlob.size / (1024 * 1024)).toFixed(2),
+            targetMB: targetMB ? parseFloat(targetMB).toFixed(2) : null,
+            originalSizeMB: (file.size / (1024 * 1024)).toFixed(2),
+            savedPercent: Math.max(0, Math.min(99.9, (((file.size - finalBlob.size) / file.size) * 100))).toFixed(1),
+            isTargetAchieved: true,
+            tierUsed: 'Direct Transformation',
+            attemptsExecuted: 1,
+            downloadUrl,
+            fileName,
+          };
+        }
+
+        // 4. CRITICAL: VERIFY ACTUAL RESULTING BLOB
+        // Inspect the genuine resulting file for page count, page dimensions, orientation, and size
+        setProgressInfo({
+          stage: t.verifyingTitle || 'Verifying final size...',
+          percent: 95,
         });
-        compressedData.targetFormatted = formatBytes(bytesToUse);
+
+        const verifiedFile = new File([compressedData.blob], compressedData.fileName, { type: 'application/pdf' });
+        const verifiedInspection = await inspectFile(verifiedFile, {
+          targetBytes: bytesToUse,
+          targetFormatted: bytesToUse ? formatBytes(bytesToUse) : null,
+        });
+
+        compressedData.verifiedInspection = verifiedInspection;
+        compressedData.targetFormatted = bytesToUse ? formatBytes(bytesToUse) : null;
         compressedData.originalSizeFormatted = formatBytes(file.size);
         compressedData.finalSizeFormatted = formatBytes(compressedData.finalSizeBytes);
+        compressedData.numPages = verifiedInspection.pdf?.pageCount || compressedData.numPages;
       } else {
         // Image compression (JPG / PNG)
         compressedData = await compressImage(
@@ -387,14 +474,32 @@ export default function App() {
               stageLabel = t.analyzingImage;
             } else if (info.stage === 'Adjusting image resolution to fit target...') {
               stageLabel = t.downscalingImage;
+            } else if (info.stage) {
+              stageLabel = info.stage;
             }
             setProgressInfo({ ...info, stage: stageLabel });
           },
           options
         );
+
+        // Verify resulting image Blob
+        const verifiedFile = new File([compressedData.blob], compressedData.fileName, { type: compressedData.blob.type });
+        const verifiedInspection = await inspectFile(verifiedFile, {
+          targetBytes: bytesToUse,
+          targetFormatted: bytesToUse ? formatBytes(bytesToUse) : null,
+        });
+
+        compressedData.verifiedInspection = verifiedInspection;
+        compressedData.targetFormatted = bytesToUse ? formatBytes(bytesToUse) : null;
+        compressedData.originalSizeFormatted = formatBytes(file.size);
+        compressedData.finalSizeFormatted = formatBytes(compressedData.finalSizeBytes);
       }
 
       setResult(compressedData);
+      setProgressInfo({
+        stage: t.statusReadyAllPassed || 'File is ready',
+        percent: 100,
+      });
 
       // Trigger automatic download only when target constraint is genuinely achieved
       if (compressedData.isTargetAchieved && compressedData.downloadUrl) {
@@ -406,7 +511,7 @@ export default function App() {
         document.body.removeChild(downloadLink);
       }
     } catch (err) {
-      console.error('Compression failure:', err);
+      console.error('Workflow execution failure:', err);
       const msg = (err?.message || '').toLowerCase();
       if (msg.includes('password')) {
         setErrorMessage(t.errPassword);
@@ -440,11 +545,12 @@ export default function App() {
         message: msg,
         confirmText: t.modalContinueBtn,
         cancelText: t.modalCancelBtn,
-        onConfirm: () => executeCompression({ targetBytes: bytesToUse }),
+        onConfirm: () => executeWorkflow({ maxSizeBytes: bytesToUse }),
       });
-    } else {
-      executeCompression({ targetBytes: bytesToUse });
+      return;
     }
+
+    executeWorkflow({ maxSizeBytes: bytesToUse });
   };
 
   // Triggered when target could not be reached as transparent PNG and user chooses JPG fallback
@@ -455,19 +561,19 @@ export default function App() {
       message: t.modalConvertMsg,
       confirmText: t.btnConvertJpg,
       cancelText: t.btnKeepPng,
-      onConfirm: () => executeCompression({ forceJpgConversion: true }),
+      onConfirm: () => executeWorkflow({ forceJpgConversion: true }),
     });
   };
 
   const handleSyncTarget = (value, unit) => {
     setTargetValue(value);
     setTargetUnit(unit);
+    handleResetResult();
   };
 
-  const handleMakeReady = (evalResult) => {
-    const fixableRule = evalResult?.fixableRules?.find((r) => r.fixType === 'COMPRESS_SIZE');
-    if (fixableRule && fixableRule.targetBytes) {
-      const targetB = fixableRule.targetBytes;
+  const handleMakeReady = (evalResult, reqs = {}) => {
+    const targetB = reqs.maxSizeBytes || targetBytes;
+    if (targetB) {
       if (targetB < 1000 * 1000) {
         setTargetUnit('KB');
         setTargetValue(Math.round(targetB / 1000));
@@ -476,12 +582,9 @@ export default function App() {
         const mb = Math.round((targetB / (1000 * 1000)) * 10) / 10;
         setTargetValue(mb);
       }
-      handleProcessClick(targetB);
-    } else {
-      handleProcessClick();
     }
+    executeWorkflow(reqs);
   };
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-[#0B1220] dark:text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors">
       {/* Dynamic SEO Meta Tags, Canonical & JSON-LD Structured Data */}

@@ -691,7 +691,8 @@ export function evaluateRequirements(inspection, requirements = {}) {
           conditionText: `≤ ${requirements.maxPages}`,
           actualText: `${pdf.pageCount}`,
           status: passed ? 'PASSED' : 'FAILED',
-          autoFixable: false,
+          autoFixable: true,
+          fixType: 'TRIM_PAGES',
         });
       } else {
         rules.push({
@@ -745,7 +746,8 @@ export function evaluateRequirements(inspection, requirements = {}) {
           conditionText: requirements.pageSize,
           actualText: pdf.hasMixedPageSizes ? `${pdf.dominantPageSize} (Mixed)` : pdf.dominantPageSize,
           status: passed ? 'PASSED' : 'FAILED',
-          autoFixable: false,
+          autoFixable: true,
+          fixType: 'NORMALIZE_PAGE_SIZE',
         });
       } else {
         rules.push({
@@ -772,7 +774,8 @@ export function evaluateRequirements(inspection, requirements = {}) {
         actualText: orientation === 'portrait' ? 'reqOrientationPortrait' : 'reqOrientationLandscape',
         status: passed ? 'PASSED' : 'FAILED',
         isTranslationKey: true,
-        autoFixable: false,
+        autoFixable: file.format === 'PDF',
+        fixType: file.format === 'PDF' ? 'NORMALIZE_ORIENTATION' : null,
       });
     } else {
       rules.push({

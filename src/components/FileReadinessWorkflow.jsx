@@ -5,6 +5,7 @@ import {
   evaluateRequirements,
 } from '../utils/fileInspector.js';
 import { parseTargetToBytes, formatBytes } from '../utils/fileUtils.js';
+import { parsePageRange } from '../utils/pdfNormalizer.js';
 import { UI_TRANSLATIONS } from '../data/translations.js';
 
 export const COMMON_PAGE_PRESETS = [
@@ -48,8 +49,11 @@ export default function FileReadinessWorkflow({
   const [customMbValue, setCustomMbValue] = useState('2');
   const [customUnit, setCustomUnit] = useState('MB');
 
-  // Effective inspection incorporates compressed result size if available
+  // Effective inspection incorporates verified resulting Blob inspection if available
   const effectiveInspection = useMemo(() => {
+    if (result?.verifiedInspection) {
+      return result.verifiedInspection;
+    }
     if (!inspection) return null;
     if (!result?.finalSizeBytes) return inspection;
     return {
@@ -135,9 +139,59 @@ export default function FileReadinessWorkflow({
     }));
   };
 
+  // Page selection modal state
+  const [isPageModalOpen, setIsPageModalOpen] = useState(false);
+  const [pageSelectionMode, setPageSelectionMode] = useState('first');
+  const [customPageRange, setCustomPageRange] = useState('');
+  const [pageModalError, setPageModalError] = useState('');
+
   const isPdf = fileType === 'PDF';
   const isImage = fileType === 'JPG' || fileType === 'PNG';
   const originalFormatted = formatBytes(file?.size || 0);
+
+  const handleMakeReadyClick = () => {
+    const totalPages = inspection?.pdf?.pageCount || metadata?.numPages || 1;
+    const maxPagesRule = evaluation.rules.find((r) => r.id === 'max_pages' && r.status === 'FAILED');
+    if (isPdf && maxPagesRule && requirements.maxPages && totalPages > requirements.maxPages) {
+      setPageModalError('');
+      setPageSelectionMode('first');
+      setCustomPageRange(`1-${requirements.maxPages}`);
+      setIsPageModalOpen(true);
+      return;
+    }
+
+    onMakeReady?.(evaluation, requirements);
+  };
+
+  const handleConfirmPageModal = () => {
+    const totalPages = inspection?.pdf?.pageCount || metadata?.numPages || 1;
+    let selectedIndices = [];
+
+    if (pageSelectionMode === 'first') {
+      const count = Math.min(requirements.maxPages, totalPages);
+      selectedIndices = Array.from({ length: count }, (_, i) => i);
+    } else {
+      selectedIndices = parsePageRange(customPageRange, totalPages);
+      if (selectedIndices.length === 0) {
+        setPageModalError(t.pageSelectEmptyError);
+        return;
+      }
+      if (selectedIndices.length > requirements.maxPages) {
+        setPageModalError(
+          t.pageSelectExceedsMax
+            .replace('{count}', selectedIndices.length)
+            .replace('{max}', requirements.maxPages)
+        );
+        return;
+      }
+    }
+
+    setIsPageModalOpen(false);
+    onMakeReady?.(evaluation, {
+      ...requirements,
+      selectedPageIndices: selectedIndices,
+    });
+  };
 
   // Compute overall status badge for File Information
   let fileStatusLabel = t.statusReady;
@@ -548,19 +602,35 @@ export default function FileReadinessWorkflow({
       {/* SECTION D: ONE PRIMARY ACTION & EXECUTION / RESULTS           */}
       {/* ============================================================== */}
       <div className="space-y-3.5 pt-1">
-        {/* State 1: In Progress */}
+        {/* State 1: In Progress — Real Progress UI */}
         {isProcessing && (
-          <div className="p-5 rounded-2xl bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-center space-y-3 animate-in fade-in duration-150">
-            <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg mx-auto shadow-2xs">
-              <span className="animate-spin inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+          <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 space-y-3 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between text-xs text-blue-950 dark:text-blue-200 font-bold">
+              <span className="flex items-center gap-2">
+                <span className="animate-spin inline-block h-3.5 w-3.5 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full shrink-0"></span>
+                <span className="truncate">{progressInfo?.stage || t.preparingTitle}</span>
+              </span>
+              <span className="shrink-0 font-mono">{progressInfo?.percent || 0}%</span>
             </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-bold text-blue-950 dark:text-blue-200">
-                {progressInfo?.stage || t.preparingTitle}
-              </h4>
-              <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">
-                {t.verifyingTitle}
-              </p>
+
+            <div className="w-full bg-blue-200/70 dark:bg-blue-900/40 h-2.5 rounded-full overflow-hidden">
+              <div
+                className="bg-blue-600 dark:bg-blue-500 h-full transition-all duration-300 rounded-full"
+                style={{ width: `${Math.min(100, Math.max(0, progressInfo?.percent || 0))}%` }}
+              ></div>
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-0.5">
+              <span className="text-blue-600 dark:text-blue-400 font-medium">
+                {progressInfo?.attempt > 1
+                  ? `${lang === 'ar' ? 'محاولة تحسين' : 'Optimization pass'} ${progressInfo.attempt} / ${progressInfo.totalAttempts || 4}`
+                  : (progressInfo?.current && progressInfo?.total
+                      ? `${lang === 'ar' ? 'الصفحة' : 'Page'} ${progressInfo.current} / ${progressInfo.total}`
+                      : t.compressingTitle)}
+              </span>
+              <span className="text-slate-400 dark:text-slate-500">
+                {lang === 'ar' ? 'المعالجة تجري محلياً في جهازك' : 'Processing locally on your device'}
+              </span>
             </div>
           </div>
         )}
@@ -671,7 +741,7 @@ export default function FileReadinessWorkflow({
                 {/* THE ONE PRIMARY ACTION */}
                 <button
                   type="button"
-                  onClick={() => onMakeReady?.(evaluation)}
+                  onClick={handleMakeReadyClick}
                   disabled={isProcessing}
                   className="w-full h-12 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm shadow-blue-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   aria-label={t.ariaMakeReady}
@@ -684,6 +754,106 @@ export default function FileReadinessWorkflow({
           </div>
         )}
       </div>
+      {/* Page Selection Confirmation Modal (Safe Max Pages Workflow) */}
+      {isPageModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-xl space-y-4">
+            <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
+              <span className="text-xl">📄</span>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                {t.pageSelectModalTitle}
+              </h3>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              {t.pageSelectModalDesc
+                .replace('{current}', inspection?.pdf?.pageCount || metadata?.numPages || 1)
+                .replace('{max}', requirements.maxPages)
+                .replace(
+                  '{excess}',
+                  Math.max(0, (inspection?.pdf?.pageCount || metadata?.numPages || 1) - requirements.maxPages)
+                )}
+            </p>
+
+            <div className="space-y-2.5 py-1">
+              <label
+                className={`flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${
+                  pageSelectionMode === 'first'
+                    ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="pageSelectionMode"
+                  value="first"
+                  checked={pageSelectionMode === 'first'}
+                  onChange={() => setPageSelectionMode('first')}
+                  className="mt-0.5 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-xs font-semibold">
+                  {t.pageSelectKeepFirst.replace('{max}', requirements.maxPages)}
+                </span>
+              </label>
+
+              <label
+                className={`flex flex-col gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
+                  pageSelectionMode === 'custom'
+                    ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100'
+                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <input
+                    type="radio"
+                    name="pageSelectionMode"
+                    value="custom"
+                    checked={pageSelectionMode === 'custom'}
+                    onChange={() => setPageSelectionMode('custom')}
+                    className="text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-xs font-semibold">{t.pageSelectCustomRange}</span>
+                </div>
+                {pageSelectionMode === 'custom' && (
+                  <input
+                    type="text"
+                    placeholder={t.pageSelectCustomPlaceholder}
+                    value={customPageRange}
+                    onChange={(e) => {
+                      setCustomPageRange(e.target.value);
+                      setPageModalError('');
+                    }}
+                    className="w-full h-8 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-200"
+                  />
+                )}
+              </label>
+            </div>
+
+            {pageModalError && (
+              <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                {pageModalError}
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <button
+                type="button"
+                onClick={() => setIsPageModalOpen(false)}
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
+              >
+                {t.btnCancel}
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmPageModal}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all cursor-pointer"
+              >
+                {t.btnApplyAndContinue}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

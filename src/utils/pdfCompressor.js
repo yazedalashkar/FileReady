@@ -131,7 +131,7 @@ export async function compressPdf(file, targetMB, onProgress) {
 
   // Account for PDF structure overhead (~10 KB + ~1.5 KB per page)
   const overhead = 10240 + numPages * 1536;
-  const usableTargetBytes = Math.max(targetBytes * 0.90, targetBytes - overhead);
+  const usableTargetBytes = Math.max(targetBytes * 0.95, targetBytes - overhead);
   const budgetPerPage = usableTargetBytes / numPages;
 
   const MAX_CANVAS_DIM = 2048;
@@ -145,7 +145,9 @@ export async function compressPdf(file, targetMB, onProgress) {
         10 + ((pageNum - 1) / numPages) * 75
       );
       onProgress?.({
-        stage: `Rendering page ${pageNum} of ${numPages} (Attempt ${attemptNumber})...`,
+        stage: `Compressing page ${pageNum} of ${numPages}...`,
+        current: pageNum,
+        total: numPages,
         percent: pagePercent,
         attempt: attemptNumber,
         totalAttempts,
@@ -207,7 +209,7 @@ export async function compressPdf(file, targetMB, onProgress) {
     }
 
     onProgress?.({
-      stage: `Verifying file size (Attempt ${attemptNumber})...`,
+      stage: 'Verifying final size...',
       percent: 92,
       attempt: attemptNumber,
       totalAttempts,
@@ -217,8 +219,14 @@ export async function compressPdf(file, targetMB, onProgress) {
   }
 
   // --- TARGET-DRIVEN ADAPTIVE SEARCH ---
+  // Searches for the HIGHEST QUALITY / LARGEST FILE candidate that satisfies: outputSize <= targetBytes.
+  // Uses binary/bracketed convergence to avoid over-compressing far below the requested target.
   const MAX_ATTEMPTS = 4;
-  let currentTierIndex = getInitialTierIndex(budgetPerPage);
+  let lowTier = 0; // Highest quality candidate (Tier 0)
+  let highTier = COMPRESSION_TIERS.length - 1; // Minimum safe quality floor (Tier 15)
+
+  // Initial starting point: use budget-per-page heuristic, bounded within valid range
+  let currentTierIndex = Math.max(lowTier, Math.min(highTier, getInitialTierIndex(budgetPerPage)));
 
   let bestCompliantBytes = null;
   let bestCompliantSize = 0;
@@ -238,7 +246,7 @@ export async function compressPdf(file, targetMB, onProgress) {
 
     onProgress?.({
       stage: `Optimizing candidate ${tier.label}...`,
-      percent: 8,
+      percent: Math.round(5 + (attempt / MAX_ATTEMPTS) * 15),
       attempt,
       totalAttempts: MAX_ATTEMPTS,
     });
@@ -246,7 +254,7 @@ export async function compressPdf(file, targetMB, onProgress) {
     const pdfBytes = await renderAndAssemble(tier.scale, tier.quality, attempt, MAX_ATTEMPTS);
     const actualSize = pdfBytes.length;
 
-    // Track the absolute smallest candidate (fallback if target cannot be achieved)
+    // Track the absolute smallest candidate (honest fallback if target cannot be achieved)
     if (actualSize < smallestSize) {
       smallestSize = actualSize;
       smallestBytes = pdfBytes;
@@ -255,55 +263,50 @@ export async function compressPdf(file, targetMB, onProgress) {
 
     if (actualSize <= targetBytes) {
       // Constraint satisfied!
-      // Keep this as best compliant candidate if larger/better quality than previous compliant candidate
+      // Keep this as best compliant candidate if larger/better quality (lower tier index)
       if (bestCompliantBytes === null || actualSize > bestCompliantSize) {
         bestCompliantBytes = pdfBytes;
         bestCompliantSize = actualSize;
         bestCompliantTier = tier;
       }
 
-      // Check if we have substantial headroom to try one step higher quality
-      // Only do this on attempt 1 if headroom > 25% and we aren't already at tier 0
-      if (attempt === 1 && actualSize < targetBytes * 0.75 && currentTierIndex > 0) {
-        const higherTierIndex = Math.max(0, currentTierIndex - 2);
-        if (!evaluatedTiers.has(higherTierIndex)) {
-          currentTierIndex = higherTierIndex;
-          continue;
+      // We want the HIGHEST QUALITY / LARGEST FILE <= targetBytes.
+      // Searching higher quality means checking lower tier indices.
+      highTier = currentTierIndex - 1;
+    } else {
+      // actualSize > targetBytes: We need more compression (higher tier index).
+      lowTier = currentTierIndex + 1;
+    }
+
+    if (lowTier > highTier) {
+      // Search space exhausted — converged on the optimal quality tier!
+      break;
+    }
+
+    // Pick next midpoint between lowTier and highTier
+    let nextIndex = Math.floor((lowTier + highTier) / 2);
+
+    // If already evaluated, find the nearest unevaluated tier within [lowTier, highTier]
+    if (evaluatedTiers.has(nextIndex)) {
+      let found = false;
+      for (let offset = 1; offset <= highTier - lowTier; offset++) {
+        if (nextIndex - offset >= lowTier && !evaluatedTiers.has(nextIndex - offset)) {
+          nextIndex = nextIndex - offset;
+          found = true;
+          break;
+        }
+        if (nextIndex + offset <= highTier && !evaluatedTiers.has(nextIndex + offset)) {
+          nextIndex = nextIndex + offset;
+          found = true;
+          break;
         }
       }
-
-      // We have found a candidate that satisfies targetBytes
-      break;
-    } else {
-      // actualSize > targetBytes: We need more compression
-      if (currentTierIndex >= COMPRESSION_TIERS.length - 1) {
-        // Already at the minimum safe quality floor (Tier 15)
-        break;
+      if (!found) {
+        break; // All tiers in current range evaluated
       }
-
-      // Calculate overshoot factor to determine next tier jump
-      const overshootRatio = actualSize / targetBytes;
-      let stepDown = 1;
-      if (overshootRatio > 2.2) {
-        stepDown = 4;
-      } else if (overshootRatio > 1.6) {
-        stepDown = 3;
-      } else if (overshootRatio > 1.25) {
-        stepDown = 2;
-      }
-
-      let nextIndex = Math.min(COMPRESSION_TIERS.length - 1, currentTierIndex + stepDown);
-      if (evaluatedTiers.has(nextIndex)) {
-        nextIndex = Math.min(COMPRESSION_TIERS.length - 1, nextIndex + 1);
-      }
-
-      if (evaluatedTiers.has(nextIndex)) {
-        // No unvisited tighter tiers available
-        break;
-      }
-
-      currentTierIndex = nextIndex;
     }
+
+    currentTierIndex = nextIndex;
   }
 
   onProgress?.({
