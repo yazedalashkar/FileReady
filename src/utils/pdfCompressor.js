@@ -220,24 +220,26 @@ export async function compressPdf(file, targetMB, onProgress) {
 
   // --- TARGET-DRIVEN ADAPTIVE SEARCH ---
   // Searches for the HIGHEST QUALITY / LARGEST FILE candidate that satisfies: outputSize <= targetBytes.
-  // Uses binary/bracketed convergence to avoid over-compressing far below the requested target.
+  // Never chooses a much smaller file when a larger valid candidate exists.
+  // If multiple candidates are <= targetBytes, select the largest one.
+  // If all candidates are below target, select the largest/highest-quality candidate.
   const MAX_ATTEMPTS = 4;
-  let lowTier = 0; // Highest quality candidate (Tier 0)
-  let highTier = COMPRESSION_TIERS.length - 1; // Minimum safe quality floor (Tier 15)
+  let lowTier = 0; // Highest quality candidate (Tier 0: 1.80x / Q85)
+  let highTier = COMPRESSION_TIERS.length - 1; // Minimum safe quality floor (Tier 15: 0.58x / Q30)
 
-  // Initial starting point: use budget-per-page heuristic, bounded within valid range
-  let currentTierIndex = Math.max(lowTier, Math.min(highTier, getInitialTierIndex(budgetPerPage)));
+  // Starting tier:
+  // If target is generous (>= 5 MB) or reduction is gentle (< 45%),
+  // test Tier 0 first to check if the highest quality output already satisfies targetBytes.
+  // Otherwise, use budget-per-page heuristic bounded within [lowTier, highTier].
+  const reductionPercent = Math.round(((file.size - targetBytes) / file.size) * 100);
+  let currentTierIndex = 0;
+  if (targetBytes < 5 * 1024 * 1024 && reductionPercent > 45) {
+    currentTierIndex = Math.max(lowTier, Math.min(highTier, getInitialTierIndex(budgetPerPage)));
+  }
 
-  let bestCompliantBytes = null;
-  let bestCompliantSize = 0;
-  let bestCompliantTier = null;
-
-  let smallestBytes = null;
-  let smallestSize = Infinity;
-  let smallestTier = null;
-
-  let attemptsExecuted = 0;
+  const evaluatedCandidates = [];
   const evaluatedTiers = new Set();
+  let attemptsExecuted = 0;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     attemptsExecuted = attempt;
@@ -254,24 +256,22 @@ export async function compressPdf(file, targetMB, onProgress) {
     const pdfBytes = await renderAndAssemble(tier.scale, tier.quality, attempt, MAX_ATTEMPTS);
     const actualSize = pdfBytes.length;
 
-    // Track the absolute smallest candidate (honest fallback if target cannot be achieved)
-    if (actualSize < smallestSize) {
-      smallestSize = actualSize;
-      smallestBytes = pdfBytes;
-      smallestTier = tier;
-    }
+    evaluatedCandidates.push({
+      bytes: pdfBytes,
+      size: actualSize,
+      tier,
+      tierIndex: currentTierIndex,
+      attempt,
+    });
 
     if (actualSize <= targetBytes) {
       // Constraint satisfied!
-      // Keep this as best compliant candidate if larger/better quality (lower tier index)
-      if (bestCompliantBytes === null || actualSize > bestCompliantSize) {
-        bestCompliantBytes = pdfBytes;
-        bestCompliantSize = actualSize;
-        bestCompliantTier = tier;
+      // If we are already at Tier 0 (highest possible quality tier), no better candidate exists.
+      if (currentTierIndex === 0) {
+        break;
       }
-
-      // We want the HIGHEST QUALITY / LARGEST FILE <= targetBytes.
-      // Searching higher quality means checking lower tier indices.
+      // To search for an even HIGHER quality / LARGER file that is still <= targetBytes,
+      // search lower tier indices (higher visual quality).
       highTier = currentTierIndex - 1;
     } else {
       // actualSize > targetBytes: We need more compression (higher tier index).
@@ -279,14 +279,14 @@ export async function compressPdf(file, targetMB, onProgress) {
     }
 
     if (lowTier > highTier) {
-      // Search space exhausted — converged on the optimal quality tier!
+      // Search space exhausted — converged!
       break;
     }
 
     // Pick next midpoint between lowTier and highTier
     let nextIndex = Math.floor((lowTier + highTier) / 2);
 
-    // If already evaluated, find the nearest unevaluated tier within [lowTier, highTier]
+    // If already evaluated, find nearest unevaluated tier within [lowTier, highTier]
     if (evaluatedTiers.has(nextIndex)) {
       let found = false;
       for (let offset = 1; offset <= highTier - lowTier; offset++) {
@@ -316,9 +316,32 @@ export async function compressPdf(file, targetMB, onProgress) {
     totalAttempts: MAX_ATTEMPTS,
   });
 
-  const isTargetAchieved = bestCompliantBytes !== null;
-  const chosenBytes = isTargetAchieved ? bestCompliantBytes : smallestBytes;
-  const chosenTier = isTargetAchieved ? bestCompliantTier : smallestTier;
+  // --- SELECTION OF THE OPTIMAL CANDIDATE ---
+  // 1. Filter candidates that satisfy: actualSize <= targetBytes
+  // 2. If multiple candidates are <= targetBytes, select the LARGEST one.
+  // 3. If all candidates are below target, select the LARGEST / HIGHEST-QUALITY candidate.
+  // 4. If all candidates exceeded target, select the SMALLEST candidate (closest to target).
+  const compliantCandidates = evaluatedCandidates.filter((c) => c.size <= targetBytes);
+
+  let chosenCandidate = null;
+
+  if (compliantCandidates.length > 0) {
+    // Sort descending by size (largest file <= targetBytes first)
+    // Secondary sort: lowest tierIndex (highest quality)
+    compliantCandidates.sort((a, b) => {
+      if (b.size !== a.size) return b.size - a.size;
+      return a.tierIndex - b.tierIndex;
+    });
+    chosenCandidate = compliantCandidates[0];
+  } else {
+    // None was <= targetBytes: pick the smallest overall candidate
+    evaluatedCandidates.sort((a, b) => a.size - b.size);
+    chosenCandidate = evaluatedCandidates[0];
+  }
+
+  const isTargetAchieved = chosenCandidate ? chosenCandidate.size <= targetBytes : false;
+  const chosenBytes = chosenCandidate.bytes;
+  const chosenTier = chosenCandidate.tier;
 
   const finalBlob = new Blob([chosenBytes], { type: 'application/pdf' });
   const finalSizeMB = (finalBlob.size / (1024 * 1024)).toFixed(2);
