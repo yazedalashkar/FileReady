@@ -6,7 +6,7 @@
  * To resume normal service, set maintenanceMode to false.
  */
 export const SITE_CONFIG = {
-  maintenanceMode: false,
+  maintenanceMode: true,
 
   maintenance: {
     titleAr: "ميزات جديدة وحصرية قادمة قريباً",
