@@ -10,6 +10,7 @@ import { UI_TRANSLATIONS } from '../data/translations.js';
 export default function SmartRequirements({
   inspection,
   targetBytes,
+  result,
   onSyncTarget,
   onMakeReady,
   lang = 'en',
@@ -29,10 +30,24 @@ export default function SmartRequirements({
 
   const [isCustomExpanded, setIsCustomExpanded] = useState(false);
 
+  // Effective inspection: incorporates compressed result size if available
+  const effectiveInspection = useMemo(() => {
+    if (!inspection) return null;
+    if (!result?.finalSizeBytes) return inspection;
+    return {
+      ...inspection,
+      file: {
+        ...inspection.file,
+        size: result.finalSizeBytes,
+        sizeFormatted: formatBytes(result.finalSizeBytes),
+      },
+    };
+  }, [inspection, result]);
+
   // Evaluate requirements dynamically
   const evaluation = useMemo(() => {
-    return evaluateRequirements(inspection, requirements);
-  }, [inspection, requirements]);
+    return evaluateRequirements(effectiveInspection, requirements);
+  }, [effectiveInspection, requirements]);
 
   // Handle Preset Click
   const handlePresetClick = (preset) => {
