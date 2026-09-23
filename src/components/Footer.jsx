@@ -10,58 +10,29 @@ export default function Footer({ lang = 'en' }) {
       <div className="max-w-xl mx-auto space-y-6 text-center">
         {/* Brand identity */}
         <div className="space-y-1">
-          <Link href="/" className="inline-block text-sm font-bold text-slate-900 dark:text-white tracking-tight hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+          <Link
+            href="/"
+            className="inline-block text-sm font-bold text-slate-900 dark:text-white tracking-tight hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
             FileReady
           </Link>
           <p className="text-xs text-slate-500 dark:text-slate-400">{t.footerSlogan}</p>
         </div>
 
-        {/* Targeted Tools Navigation */}
-        <div className="space-y-2 text-[11px] font-medium text-slate-600 dark:text-slate-400">
-          <nav aria-label="Target tools navigation" className="flex items-center justify-center gap-x-3.5 gap-y-1.5 flex-wrap">
-            <Link href="/compress-pdf-to-2mb" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              {lang === 'ar' ? 'PDF إلى 2MB' : 'PDF to 2MB'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link href="/compress-pdf-to-1mb" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              {lang === 'ar' ? 'PDF إلى 1MB' : 'PDF to 1MB'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link href="/compress-pdf-to-500kb" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              {lang === 'ar' ? 'PDF إلى 500KB' : 'PDF to 500KB'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link href="/merge-pdf" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-semibold">
-              {lang === 'ar' ? 'دمج PDF' : 'Merge PDF'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link href="/compress-image-to-500kb" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              {lang === 'ar' ? 'صورة إلى 500KB' : 'Image to 500KB'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link href="/compress-image-to-1mb" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              {lang === 'ar' ? 'صورة إلى 1MB' : 'Image to 1MB'}
-            </Link>
-          </nav>
-
-          <nav aria-label="Troubleshooting navigation" className="flex items-center justify-center gap-x-3.5 gap-y-1.5 flex-wrap text-slate-500 dark:text-slate-400">
-            <Link href="/pdf-too-large-to-upload" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              {lang === 'ar' ? 'ملف PDF كبير للرفع؟' : 'PDF Too Large to Upload?'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link href="/compress-scanned-pdf" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              {lang === 'ar' ? 'ضغط PDF ممسوح ضوئياً' : 'Compress Scanned PDF'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link href="/reduce-pdf-size" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              {lang === 'ar' ? 'تقليل حجم PDF' : 'Reduce PDF Size'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link href="/tools" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-semibold">
-              {lang === 'ar' ? 'كافة الأدوات' : 'Tools Hub'}
-            </Link>
-          </nav>
-        </div>
+        {/* Clean, minimal core navigation */}
+        <nav aria-label="Footer navigation" className="flex items-center justify-center gap-x-4 gap-y-2 flex-wrap text-xs font-semibold text-slate-600 dark:text-slate-400">
+          <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            {t.navHome}
+          </Link>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <Link href="/tools" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            {t.toolsNavTitle}
+          </Link>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <Link href="/merge-pdf" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            {t.toolTitleMergePdf}
+          </Link>
+        </nav>
 
         {/* Separator line */}
         <div className="h-px bg-slate-200/70 dark:bg-slate-800 max-w-xs mx-auto" />

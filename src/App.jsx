@@ -13,6 +13,7 @@ import ToolsHub from './components/ToolsHub.jsx';
 import MergePdfTool from './components/MergePdfTool.jsx';
 import FileInspector from './components/FileInspector.jsx';
 import SmartRequirements from './components/SmartRequirements.jsx';
+import FileReadinessWorkflow from './components/FileReadinessWorkflow.jsx';
 import { inspectFile } from './utils/fileInspector.js';
 import { ROUTES_DATA } from './data/seoData.js';
 import { UI_TRANSLATIONS, ARABIC_ROUTES_CONTENT } from './data/translations.js';
@@ -568,42 +569,23 @@ export default function App() {
               </div>
             )}
 
-            {/* State 4, 5, 6, 7, 8: Analysis, Processing & Results */}
+            {/* State 4, 5, 6, 7, 8: Unified File Readiness Workflow */}
             {file && !isAnalyzing && (
-              <>
-                <FileInspector
-                  inspection={inspectionResult}
-                  targetBytes={targetBytes}
-                  targetFormatted={targetFormatted}
-                  result={result}
-                  lang={lang}
-                />
-
-                <SmartRequirements
-                  inspection={inspectionResult}
-                  targetBytes={targetBytes}
-                  result={result}
-                  onSyncTarget={handleSyncTarget}
-                  onMakeReady={handleMakeReady}
-                  lang={lang}
-                />
-
-                <AnalysisCard
-                  file={file}
-                  fileType={fileType}
-                  metadata={metadata}
-                  targetBytes={targetBytes}
-                  targetFormatted={targetFormatted}
-                  isProcessing={isProcessing}
-                  progressInfo={progressInfo}
-                  result={result}
-                  onProcess={handleProcessClick}
-                  onReset={handleReset}
-                  onResetResult={handleResetResult}
-                  onRequestJpgConversion={handleRequestJpgConversion}
-                  lang={lang}
-                />
-              </>
+              <FileReadinessWorkflow
+                file={file}
+                fileType={fileType}
+                inspection={inspectionResult}
+                metadata={metadata}
+                targetBytes={targetBytes}
+                isProcessing={isProcessing}
+                progressInfo={progressInfo}
+                result={result}
+                onSyncTarget={handleSyncTarget}
+                onMakeReady={handleMakeReady}
+                onReset={handleReset}
+                onRequestJpgConversion={handleRequestJpgConversion}
+                lang={lang}
+              />
             )}
 
             {/* Informational Context & Real Constraints */}
