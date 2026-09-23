@@ -20,6 +20,13 @@ export default function ToolsHub({ lang = 'en' }) {
       description: t.toolDescMergePdf,
       icon: '📑',
     },
+    {
+      path: '/clean-scan',
+      title: t.scanCleanupTitle,
+      badge: 'NEW',
+      description: t.scanCleanupSubtitle,
+      icon: '✨',
+    },
   ];
 
   const imageTools = [

@@ -11,6 +11,9 @@ import FAQAccordion from './components/FAQAccordion.jsx';
 import InternalLinks from './components/InternalLinks.jsx';
 import ToolsHub from './components/ToolsHub.jsx';
 import MergePdfTool from './components/MergePdfTool.jsx';
+import SmartScanCleanup from './components/SmartScanCleanup.jsx';
+import MaintenancePage from './components/MaintenancePage.jsx';
+import { SITE_CONFIG } from './config/siteConfig.js';
 import FileInspector from './components/FileInspector.jsx';
 import SmartRequirements from './components/SmartRequirements.jsx';
 import FileReadinessWorkflow from './components/FileReadinessWorkflow.jsx';
@@ -585,6 +588,12 @@ export default function App() {
     }
     executeWorkflow(reqs);
   };
+  // Global Maintenance Mode Guard:
+  // When SITE_CONFIG.maintenanceMode is true, render only the single maintenance page.
+  if (SITE_CONFIG.maintenanceMode) {
+    return <MaintenancePage config={SITE_CONFIG.maintenance} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-[#0B1220] dark:text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors">
       {/* Dynamic SEO Meta Tags, Canonical & JSON-LD Structured Data */}
@@ -611,6 +620,8 @@ export default function App() {
           <ToolsHub lang={lang} />
         ) : currentPath === '/merge-pdf' ? (
           <MergePdfTool lang={lang} />
+        ) : currentPath === '/clean-scan' ? (
+          <SmartScanCleanup lang={lang} />
         ) : (
           <>
             {/* Error notification banner */}
