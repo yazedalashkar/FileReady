@@ -13,6 +13,7 @@ import ToolsHub from './components/ToolsHub.jsx';
 import MergePdfTool from './components/MergePdfTool.jsx';
 import SmartScanCleanup from './components/SmartScanCleanup.jsx';
 import MaintenancePage from './components/MaintenancePage.jsx';
+import AdBanner from './components/AdBanner.jsx';
 import { SITE_CONFIG } from './config/siteConfig.js';
 import FileInspector from './components/FileInspector.jsx';
 import SmartRequirements from './components/SmartRequirements.jsx';
@@ -624,6 +625,9 @@ export default function App() {
           <SmartScanCleanup lang={lang} />
         ) : (
           <>
+            {/* Professional Ad Banner directly below Header */}
+            <AdBanner lang={lang} />
+
             {/* Error notification banner */}
             <AlertBanner
               message={errorMessage}
