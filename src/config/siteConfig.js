@@ -5,7 +5,7 @@
 export const SITE_CONFIG = {
   // Maintenance mode configuration
   // Set maintenanceMode to true to take the site offline into maintenance mode.
-  maintenanceMode: false,
+  maintenanceMode: true,
 
   maintenance: {
     titleAr: "ميزات جديدة وحصرية قادمة قريباً",
@@ -16,7 +16,7 @@ export const SITE_CONFIG = {
 
   // Advertising configuration
   ads: {
-    enabled: true,
+    enabled: false,
     provider: 'adsterra', // Adsterra Native Banner
     adsterra: {
       containerId: 'container-9a9605932a8b9e173e2bc610da3bbe44',
