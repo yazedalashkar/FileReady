@@ -36,6 +36,10 @@ export default function Footer({ lang = 'en' }) {
           <Link href="/clean-scan" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             {t.scanCleanupTitle}
           </Link>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <Link href="/flatten-pdf" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            {t.toolTitleFlattenPdf}
+          </Link>
         </nav>
 
         {/* Separator line */}

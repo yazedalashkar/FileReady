@@ -12,6 +12,7 @@ import InternalLinks from './components/InternalLinks.jsx';
 import ToolsHub from './components/ToolsHub.jsx';
 import MergePdfTool from './components/MergePdfTool.jsx';
 import SmartScanCleanup from './components/SmartScanCleanup.jsx';
+import FlattenPdfTool from './components/FlattenPdfTool.jsx';
 import MaintenancePage from './components/MaintenancePage.jsx';
 import AdBanner from './components/AdBanner.jsx';
 import { SITE_CONFIG } from './config/siteConfig.js';
@@ -623,6 +624,8 @@ export default function App() {
           <MergePdfTool lang={lang} />
         ) : currentPath === '/clean-scan' ? (
           <SmartScanCleanup lang={lang} />
+        ) : currentPath === '/flatten-pdf' ? (
+          <FlattenPdfTool lang={lang} />
         ) : (
           <>
             {/* Professional Ad Banner directly below Header */}

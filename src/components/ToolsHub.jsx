@@ -27,6 +27,13 @@ export default function ToolsHub({ lang = 'en' }) {
       description: t.scanCleanupSubtitle,
       icon: '✨',
     },
+    {
+      path: '/flatten-pdf',
+      title: t.toolTitleFlattenPdf,
+      badge: 'NEW',
+      description: t.toolDescFlattenPdf,
+      icon: '🔒',
+    },
   ];
 
   const imageTools = [
