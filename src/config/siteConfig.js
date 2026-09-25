@@ -1,3 +1,4 @@
+
 /**
  * FileReady Global Site Configuration
  * SINGLE SOURCE OF TRUTH for maintenance mode and advertising slots.
@@ -16,7 +17,7 @@ export const SITE_CONFIG = {
 
   // Advertising configuration
   ads: {
-    enabled: true,
+    enabled: false,
     provider: 'adsterra', // Adsterra Native Banner
     adsterra: {
       containerId: 'container-9a9605932a8b9e173e2bc610da3bbe44',
