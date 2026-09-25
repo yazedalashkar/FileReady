@@ -13,6 +13,7 @@ import ToolsHub from './components/ToolsHub.jsx';
 import MergePdfTool from './components/MergePdfTool.jsx';
 import SmartScanCleanup from './components/SmartScanCleanup.jsx';
 import FlattenPdfTool from './components/FlattenPdfTool.jsx';
+import SplashScreen from './components/SplashScreen.jsx';
 import MaintenancePage from './components/MaintenancePage.jsx';
 import AdBanner from './components/AdBanner.jsx';
 import { SITE_CONFIG } from './config/siteConfig.js';
@@ -43,6 +44,16 @@ function getCleanPath() {
 }
 
 export default function App() {
+  // Splash screen state (shows once per session, Windows 11 style, 2s duration)
+  const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return !sessionStorage.getItem('fileready_splash_shown');
+    } catch {
+      return false;
+    }
+  });
+
   // Client-side route state
   const [currentPath, setCurrentPath] = useState(getCleanPath);
 
@@ -598,6 +609,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-[#0B1220] dark:text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors">
+      {/* Windows 11 Inspired Fluid Splash Animation */}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       {/* Dynamic SEO Meta Tags, Canonical & JSON-LD Structured Data */}
       <SEO
         title={pageData.title}
