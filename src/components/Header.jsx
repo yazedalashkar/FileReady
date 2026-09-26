@@ -21,7 +21,7 @@ export default function Header({
   };
 
   return (
-    <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xs sticky top-0 z-30 py-2.5 sm:py-3 px-3.5 sm:px-6 transition-colors">
+    <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md sticky top-0 z-30 py-2.5 sm:py-3 px-3.5 sm:px-6 transition-colors">
       <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
         {/* Brand identity */}
         <Link href="/" className="flex items-center gap-2 group cursor-pointer shrink-0">
@@ -53,16 +53,24 @@ export default function Header({
 
         {/* Controls: Tools Hub Link, Client-Side Badge, Optional PWA Install, Language Switcher, and Theme Toggle */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Tools Hub Navigation Link */}
+          {/* Tools Hub Navigation Link - Modern, Eye-Catching & Attractive */}
           <Link
             href="/tools"
-            className="h-9 px-2 sm:px-2.5 rounded-xl border border-slate-200/90 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
-            title={t.toolsNavTitle || (lang === 'ar' ? 'أدوات FileReady' : 'FileReady Tools')}
+            className="relative group h-9 px-3 sm:px-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-sm shadow-blue-500/25 hover:shadow-blue-500/40 border border-blue-400/30 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer overflow-hidden"
+            title={t.toolsNavTitle || (lang === 'ar' ? 'أدوات FileReady المتقدمة' : 'Explore All Advanced Tools')}
             aria-label={t.toolsNav || (lang === 'ar' ? 'الأدوات' : 'Tools')}
           >
-            <span className="text-xs">🧰</span>
-            <span className="text-xs font-bold">
+            {/* Animated glowing pulse indicator */}
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-300 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+            </span>
+            <span className="text-xs">✨</span>
+            <span className="text-xs font-bold tracking-tight">
               {t.toolsNav || (lang === 'ar' ? 'الأدوات' : 'Tools')}
+            </span>
+            <span className="hidden sm:inline-block text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-white/20 text-white border border-white/25">
+              NEW
             </span>
           </Link>
 

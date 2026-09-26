@@ -13,6 +13,7 @@ import ToolsHub from './components/ToolsHub.jsx';
 import MergePdfTool from './components/MergePdfTool.jsx';
 import SmartScanCleanup from './components/SmartScanCleanup.jsx';
 import FlattenPdfTool from './components/FlattenPdfTool.jsx';
+import ImagesToPdfTool from './components/ImagesToPdfTool.jsx';
 import SplashScreen from './components/SplashScreen.jsx';
 import MaintenancePage from './components/MaintenancePage.jsx';
 import AdBanner from './components/AdBanner.jsx';
@@ -639,6 +640,8 @@ export default function App() {
           <SmartScanCleanup lang={lang} />
         ) : currentPath === '/flatten-pdf' ? (
           <FlattenPdfTool lang={lang} />
+        ) : currentPath === '/images-to-pdf' ? (
+          <ImagesToPdfTool lang={lang} />
         ) : (
           <>
             {/* Professional Ad Banner directly below Header */}

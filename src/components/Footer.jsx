@@ -40,6 +40,10 @@ export default function Footer({ lang = 'en' }) {
           <Link href="/flatten-pdf" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             {t.toolTitleFlattenPdf}
           </Link>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <Link href="/images-to-pdf" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            {t.toolTitleImagesToPdf || 'Images to PDF'}
+          </Link>
         </nav>
 
         {/* Separator line */}

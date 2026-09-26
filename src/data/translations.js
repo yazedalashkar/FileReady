@@ -403,6 +403,10 @@ export const UI_TRANSLATIONS = {
     flattenEditableVal: 'Fillable / Editable',
     flattenDownloadBtn: 'Download Flattened PDF',
     flattenStartOver: 'Flatten Another PDF',
+    // Images to PDF Tool
+    toolTitleImagesToPdf: 'Images to PDF',
+    toolBadgeImagesToPdf: 'Conversion',
+    toolDescImagesToPdf: 'Combine, reorder, and convert photos and document scans into one clean, portal-compliant PDF document.',
     ariaResetFile: 'Remove file and start over',
   },
 
@@ -804,6 +808,10 @@ export const UI_TRANSLATIONS = {
     flattenEditableVal: 'تفاعلي / قابل للتعديل',
     flattenDownloadBtn: 'تنزيل الـ PDF المسطح',
     flattenStartOver: 'تسطيح ملف آخر',
+    // أداة تحويل الصور إلى PDF
+    toolTitleImagesToPdf: 'تحويل الصور إلى PDF',
+    toolBadgeImagesToPdf: 'دمج وتحويل',
+    toolDescImagesToPdf: 'حوّل ورتب صور الشهادات والهويات والوثائق إلى مستند PDF واحد أنيق ومنظم ومطابق لاشتراطات التقديم.',
     ariaResetFile: 'إزالة الملف والبدء من جديد',
   },
 };
@@ -1348,5 +1356,9 @@ export const ARABIC_ROUTES_CONTENT = {
   '/clean-scan': {
     h1: 'تنظيف المستندات الممسوحة',
     subheading: 'اكتشاف وتصحيح ميل الصفحات، الهوامش الزائدة، الخلفيات الرمادية، والصفحات الفارغة تلقائياً وبأمان تام.',
+  },
+  '/flatten-pdf': {
+    h1: 'تسطيح وتأمين PDF',
+    subheading: 'تثبيت حقول النماذج المعبأة، حرق التواقيع، وجعل ملف الـ PDF غير قابل للتعديل نهائياً لبوابات التقديم.',
   },
 };

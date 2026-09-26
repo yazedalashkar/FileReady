@@ -60,7 +60,7 @@ export default function FileDropzone({ onFileSelected, disabled, lang = 'en' }) 
       />
 
       <div className="flex flex-col items-center justify-center space-y-3.5">
-        <div className="h-14 w-14 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl shadow-2xs">
+        <div className="h-16 w-16 rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-blue-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
           📄
         </div>
 

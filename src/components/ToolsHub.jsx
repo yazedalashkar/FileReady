@@ -44,6 +44,13 @@ export default function ToolsHub({ lang = 'en' }) {
       description: t.toolDescCompressImage,
       icon: '🖼️',
     },
+    {
+      path: '/images-to-pdf',
+      title: t.toolTitleImagesToPdf || (lang === 'ar' ? 'تحويل الصور إلى PDF' : 'Images to PDF'),
+      badge: 'NEW',
+      description: t.toolDescImagesToPdf || (lang === 'ar' ? 'دمج وترتيب صور الشهادات والوثائق في ملف PDF واحد منظم ومطابق للبوابات.' : 'Combine and convert photos and document scans into one clean, portal-compliant PDF.'),
+      icon: '📑',
+    },
   ];
 
   return (

@@ -911,4 +911,68 @@ export const ROUTES_DATA = {
     subheading:
       'Combine multiple PDF files into one clean document directly in your browser.',
   },
+  '/clean-scan': {
+    path: '/clean-scan',
+    canonical: `${SITE_URL}/clean-scan`,
+    title: 'Clean Scanned PDF & Documents Online Free | FileReady',
+    metaDescription:
+      'Auto-deskew, crop dark scanner margins, brighten gray backgrounds, and remove blank pages from scanned PDFs and documents client-side.',
+    h1: 'Clean & Enhance Scanned Documents',
+    subheading:
+      'Auto-deskew, crop black margins, brighten gray backgrounds, and remove blank pages directly in your browser.',
+    faqs: [
+      {
+        question: 'How does FileReady clean scanned documents?',
+        answer:
+          'FileReady analyzes each page on a local HTML5 canvas, detects page skew using line regression, identifies and crops black scanner border shadows, boosts contrast to whiten gray backgrounds, and detects blank pages.',
+      },
+      {
+        question: 'Are my scanned documents uploaded to any server?',
+        answer:
+          'No. All image processing, rotation, filtering, and PDF generation occur 100% locally in your browser. Your confidential scans never leave your device.',
+      },
+      {
+        question: 'Can I choose which cleanups to apply?',
+        answer:
+          'Yes. You can toggle auto-deskew, margin crop, background whitening, and blank page removal individually, or select the automatic cleanup preset.',
+      },
+      {
+        question: 'Does cleaning reduce the quality of official stamps and signatures?',
+        answer:
+          'No. The adaptive thresholding algorithm enhances dark ink strokes and official stamps while whitening gray paper textures.',
+      },
+    ],
+  },
+  '/flatten-pdf': {
+    path: '/flatten-pdf',
+    canonical: `${SITE_URL}/flatten-pdf`,
+    title: 'Flatten PDF Online Free — Lock Form Fields & Make Non-Editable | FileReady',
+    metaDescription:
+      'Permanently flatten fillable PDF forms, lock form fields, burn-in signatures, and strip dynamic layers for portal submissions with FileReady.',
+    h1: 'Flatten PDF',
+    subheading:
+      'Lock fillable form fields, burn in signatures, and make PDFs permanently non-editable for portal submission.',
+    faqs: [
+      {
+        question: 'What does flattening a PDF mean?',
+        answer:
+          'Flattening converts interactive elements (such as fillable text fields, checkboxes, radio buttons, and digital signatures) into permanent, non-editable page content.',
+      },
+      {
+        question: 'Why do immigration and university portals require flattened PDFs?',
+        answer:
+          'Many government, visa (e.g. USCIS), and academic intake portals reject PDFs with active form widgets or multi-layer annotations because their automated ingest systems cannot parse interactive forms reliably.',
+      },
+      {
+        question: 'What is the difference between Vector Flattening and Print-to-PDF?',
+        answer:
+          'Vector flattening locks form fields while preserving sharp, searchable vector text and small file size. Print-to-PDF / visual flattening renders every page into a 100% static layer for maximum compatibility with strict legacy systems.',
+      },
+      {
+        question: 'Does FileReady flatten PDFs locally on my device?',
+        answer:
+          'Yes. FileReady uses client-side WebAssembly and JavaScript engines (pdf-lib and PDF.js) directly inside your browser tab without uploading your confidential paperwork.',
+      },
+    ],
+  },
 };
