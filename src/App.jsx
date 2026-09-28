@@ -619,6 +619,8 @@ export default function App() {
         canonical={pageData.canonical}
         h1={pageData.h1}
         lang={lang}
+        faqs={pageData.faqs}
+        howTo={pageData.howTo}
       />
 
       {/* Global Header with Theme, Language, Tools Hub, and Optional Install Controls */}

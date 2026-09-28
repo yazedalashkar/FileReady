@@ -7,6 +7,8 @@ export default function SEO({
   canonical,
   h1,
   lang = 'en',
+  faqs,
+  howTo,
 }) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -60,7 +62,7 @@ export default function SEO({
     setMetaTag('name', 'twitter:description', description);
     setMetaTag('name', 'twitter:image', `${SITE_URL}/logo.png`);
 
-    // 7. JSON-LD Structured Data (WebApplication & BreadcrumbList only)
+    // 7. JSON-LD Structured Data
     const schemas = [
       {
         '@context': 'https://schema.org',
@@ -100,6 +102,36 @@ export default function SEO({
         ],
       },
     ];
+
+    if (faqs && faqs.length > 0) {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })),
+      });
+    }
+
+    if (howTo && howTo.length > 0) {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: h1 || title,
+        description: description,
+        step: howTo.map((stepItem, index) => ({
+          '@type': 'HowToStep',
+          position: index + 1,
+          name: stepItem.title,
+          text: stepItem.description,
+        })),
+      });
+    }
 
     let scriptEl = document.getElementById('fileready-jsonld');
     if (!scriptEl) {
