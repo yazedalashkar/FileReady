@@ -51,7 +51,7 @@ export default function TargetSizeInput({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xs space-y-3.5 transition-colors">
+    <div className="ios-glass-card rounded-[28px] p-5 sm:p-6 space-y-4 transition-all duration-300">
       <div className="flex items-center justify-between gap-2">
         <label
           htmlFor="target-size-input"
@@ -75,12 +75,12 @@ export default function TargetSizeInput({
             onChange={handleValueChange}
             disabled={disabled}
             placeholder={targetUnit === 'KB' ? 'e.g. 500' : 'e.g. 2'}
-            className="w-full text-lg sm:text-xl font-bold text-[#0B1220] dark:text-white bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700/80 rounded-2xl px-4 py-2.5 sm:py-3 focus:outline-hidden focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full text-lg sm:text-xl font-bold text-[#0B1220] dark:text-white bg-white/50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-2xl px-4 py-2.5 sm:py-3 focus:outline-hidden focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
           />
         </div>
 
         {/* Stable Unit Toggle: internal values 'MB' / 'KB', visual labels localized */}
-        <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl border border-slate-200/80 dark:border-slate-800 shrink-0">
+        <div className="flex bg-slate-200/50 dark:bg-black/40 p-1 rounded-2xl border border-slate-300/40 dark:border-white/10 shrink-0 backdrop-blur-xs">
           <button
             type="button"
             onClick={() => handleUnitToggle('MB')}
@@ -123,7 +123,7 @@ export default function TargetSizeInput({
                 type="button"
                 onClick={() => handlePresetClick(preset)}
                 disabled={disabled}
-                className={`text-xs px-2.5 py-1.5 rounded-xl font-semibold border transition-all cursor-pointer min-h-[36px] flex items-center justify-center ${
+                className={`text-xs px-3 py-1.5 rounded-2xl font-bold border transition-all cursor-pointer min-h-[36px] flex items-center justify-center ios-spring-press ${
                   isActive
                     ? 'bg-blue-600 border-blue-600 text-white shadow-2xs'
                     : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900'

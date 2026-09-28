@@ -65,3 +65,113 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline: 2px solid #2563EB;
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   FUTURISTIC iOS LIQUID GLASSMORPHISM & SPRING PHYSICS
+   ========================================================================== */
+
+/* iOS Spring & Float Animations */
+@keyframes iosModalIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.93) translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes iosBackdropIn {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(16px);
+  }
+}
+
+@keyframes ambientPulse {
+  0%, 100% {
+    transform: scale(1) translate(0px, 0px);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.08) translate(15px, -15px);
+    opacity: 0.55;
+  }
+}
+
+.animate-ios-modal {
+  animation: iosModalIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-ios-backdrop {
+  animation: iosBackdropIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-ambient-1 {
+  animation: ambientPulse 12s ease-in-out infinite;
+}
+
+.animate-ambient-2 {
+  animation: ambientPulse 16s ease-in-out infinite reverse;
+}
+
+/* iOS Glass Classes */
+.ios-glass-header {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+html.dark .ios-glass-header {
+  background: rgba(11, 18, 32, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ios-glass-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 10px -2px rgba(0, 0, 0, 0.02);
+}
+
+html.dark .ios-glass-card {
+  background: rgba(17, 28, 48, 0.72);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.ios-glass-modal {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+html.dark .ios-glass-modal {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* iOS Spring Micro-Interactions */
+.ios-spring-press {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease-out;
+}
+
+.ios-spring-press:active {
+  transform: scale(0.965);
+}

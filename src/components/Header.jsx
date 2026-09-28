@@ -9,6 +9,7 @@ export default function Header({
   setLang,
   isInstallable = false,
   onInstall,
+  onOpenAppModal,
 }) {
   const t = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
 
@@ -21,7 +22,7 @@ export default function Header({
   };
 
   return (
-    <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md sticky top-0 z-30 py-2.5 sm:py-3 px-3.5 sm:px-6 transition-colors">
+    <header className="ios-glass-header sticky top-0 z-30 py-2.5 sm:py-3.5 px-3.5 sm:px-6 transition-all duration-300">
       <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
         {/* Brand identity */}
         <Link href="/" className="flex items-center gap-2 group cursor-pointer shrink-0">
@@ -56,7 +57,7 @@ export default function Header({
           {/* Tools Hub Navigation Link - Modern, Eye-Catching & Attractive */}
           <Link
             href="/tools"
-            className="relative group h-9 px-3 sm:px-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-sm shadow-blue-500/25 hover:shadow-blue-500/40 border border-blue-400/30 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer overflow-hidden"
+            className="relative group h-9 px-3 sm:px-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-md shadow-blue-500/25 hover:shadow-blue-500/40 border border-white/20 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer overflow-hidden ios-spring-press"
             title={t.toolsNavTitle || (lang === 'ar' ? 'أدوات FileReady المتقدمة' : 'Explore All Advanced Tools')}
             aria-label={t.toolsNav || (lang === 'ar' ? 'الأدوات' : 'Tools')}
           >
@@ -73,6 +74,23 @@ export default function Header({
               NEW
             </span>
           </Link>
+
+          {/* Download Android App Button - iOS Liquid Glass Pill */}
+          <button
+            type="button"
+            onClick={onOpenAppModal}
+            className="h-9 px-2.5 sm:px-3 rounded-2xl border border-emerald-400/40 dark:border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-400/10 hover:bg-emerald-500/20 dark:hover:bg-emerald-400/20 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ios-spring-press cursor-pointer shrink-0"
+            title={t.androidAppNav || 'Android App'}
+            aria-label={t.androidAppNav || 'Android App'}
+          >
+            <span className="text-xs">🤖</span>
+            <span className="text-xs font-bold">
+              {t.androidAppNav || (lang === 'ar' ? 'تطبيق أندرويد' : 'Android App')}
+            </span>
+            <span className="hidden sm:inline-block text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-emerald-500 text-white shadow-xs">
+              APK
+            </span>
+          </button>
 
           {/* Privacy badge - hidden on very narrow mobile screens (<400px) for comfort */}
           <div className="hidden xs:flex sm:flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-1 rounded-full font-semibold shrink-0">
@@ -100,7 +118,7 @@ export default function Header({
           <button
             type="button"
             onClick={toggleLang}
-            className="h-9 px-2.5 rounded-xl border border-slate-200/90 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1 shadow-2xs cursor-pointer min-w-[44px] justify-center"
+            className="h-9 px-2.5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 hover:bg-white/90 dark:hover:bg-white/10 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all flex items-center gap-1 shadow-2xs cursor-pointer min-w-[44px] justify-center ios-spring-press"
             title={lang === 'en' ? 'التبديل إلى العربية' : 'Switch to English'}
             aria-label="Language selector"
           >
@@ -111,7 +129,7 @@ export default function Header({
           <button
             type="button"
             onClick={toggleTheme}
-            className="h-9 w-9 rounded-xl border border-slate-200/90 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-amber-300 transition-colors flex items-center justify-center shadow-2xs cursor-pointer"
+            className="h-9 w-9 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 hover:bg-white/90 dark:hover:bg-white/10 text-slate-700 dark:text-amber-300 transition-all flex items-center justify-center shadow-2xs cursor-pointer ios-spring-press"
             title={theme === 'dark' ? t.switchThemeLight : t.switchThemeDark}
             aria-label="Toggle theme"
           >

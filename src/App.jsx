@@ -6,6 +6,7 @@ import TargetSizeInput from './components/TargetSizeInput.jsx';
 import AnalysisCard from './components/AnalysisCard.jsx';
 import AlertBanner from './components/AlertBanner.jsx';
 import ConfirmModal from './components/ConfirmModal.jsx';
+import DownloadAppModal from './components/DownloadAppModal.jsx';
 import SEO from './components/SEO.jsx';
 import FAQAccordion from './components/FAQAccordion.jsx';
 import InternalLinks from './components/InternalLinks.jsx';
@@ -117,6 +118,9 @@ export default function App() {
   const [progressInfo, setProgressInfo] = useState(null);
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // State for Download Android App modal
+  const [showAppModal, setShowAppModal] = useState(false);
 
   // Unified modal state
   const [modalConfig, setModalConfig] = useState({
@@ -609,7 +613,14 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-[#0B1220] dark:text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors">
+    <div className="min-h-screen flex flex-col bg-slate-50/90 dark:bg-[#070B14] text-[#0B1220] dark:text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white transition-colors relative overflow-x-hidden">
+      {/* iOS Liquid Ambient Glow Background Orbs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/15 dark:bg-blue-600/20 rounded-full blur-3xl animate-ambient-1" />
+        <div className="absolute top-1/3 -right-40 w-96 h-96 bg-indigo-500/15 dark:bg-indigo-600/20 rounded-full blur-3xl animate-ambient-2" />
+        <div className="absolute -bottom-40 left-1/4 w-96 h-96 bg-cyan-400/15 dark:bg-cyan-500/15 rounded-full blur-3xl animate-ambient-1" />
+      </div>
+
       {/* Windows 11 Inspired Fluid Splash Animation */}
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       {/* Dynamic SEO Meta Tags, Canonical & JSON-LD Structured Data */}
@@ -629,11 +640,12 @@ export default function App() {
         setLang={setLang}
         isInstallable={isInstallable}
         onInstall={triggerInstall}
+        onOpenAppModal={() => setShowAppModal(true)}
       />
 
-      <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 space-y-5 sm:space-y-6">
+      <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 space-y-5 sm:space-y-6 relative z-10">
         {currentPath === '/tools' ? (
-          <ToolsHub lang={lang} />
+          <ToolsHub lang={lang} onOpenAppModal={() => setShowAppModal(true)} />
         ) : currentPath === '/merge-pdf' ? (
           <MergePdfTool lang={lang} />
         ) : currentPath === '/clean-scan' ? (
@@ -652,6 +664,41 @@ export default function App() {
               message={errorMessage}
               onDismiss={() => setErrorMessage('')}
             />
+
+            {/* Eye-Catching Android App Callout Card - iOS Liquid Glass */}
+            {!file && (
+              <div
+                onClick={() => setShowAppModal(true)}
+                className="p-3.5 sm:p-4 rounded-[28px] ios-glass-card hover:border-emerald-400/60 dark:hover:border-emerald-500/50 flex items-center justify-between gap-3 transition-all ios-spring-press cursor-pointer group text-start relative overflow-hidden"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 text-white flex items-center justify-center text-xl shadow-md shadow-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform border border-white/20">
+                    🤖
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs sm:text-sm font-bold text-[#0B1220] dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                        {t.androidAppBannerTitle}
+                      </span>
+                      <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-emerald-500 text-white shadow-xs shrink-0">
+                        APK
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      {t.androidAppBannerDesc}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="h-8.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 shrink-0 flex items-center gap-1 cursor-pointer ios-spring-press"
+                >
+                  <span>📥</span>
+                  <span className="hidden sm:inline">{t.androidAppBannerBtn}</span>
+                </button>
+              </div>
+            )}
 
             {/* Page Hero Header */}
             <div className="text-center sm:text-start space-y-1.5 pt-1">
@@ -794,7 +841,7 @@ export default function App() {
       </main>
 
       {/* Global Minimal SaaS Footer with Founder Attribution */}
-      <Footer lang={lang} />
+      <Footer lang={lang} onOpenAppModal={() => setShowAppModal(true)} />
 
       {/* Confirmation Modal */}
       <ConfirmModal
@@ -805,6 +852,13 @@ export default function App() {
         cancelText={modalConfig.cancelText}
         onConfirm={modalConfig.onConfirm}
         onCancel={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+      />
+
+      {/* Download Android App Modal */}
+      <DownloadAppModal
+        isOpen={showAppModal}
+        onClose={() => setShowAppModal(false)}
+        lang={lang}
       />
     </div>
   );

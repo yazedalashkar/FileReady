@@ -44,11 +44,11 @@ export default function FileDropzone({ onFileSelected, disabled, lang = 'en' }) 
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={handleClick}
-      className={`border-2 border-dashed rounded-3xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-200 ${
+      className={`border-2 border-dashed rounded-[32px] p-8 sm:p-11 text-center cursor-pointer transition-all duration-300 ${
         isDragOver
-          ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/30 scale-[0.995]'
-          : 'border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-900/70 hover:border-blue-500/80 dark:hover:border-blue-500/70 hover:bg-blue-50/20 dark:hover:bg-blue-950/20 shadow-xs'
-      } ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+          ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-950/50 scale-[0.99] shadow-xl'
+          : 'border-slate-300/80 dark:border-white/10 ios-glass-card hover:border-blue-500/60 dark:hover:border-blue-400/50 hover:shadow-2xl hover:shadow-blue-500/10'
+      } ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''} ios-spring-press group`}
     >
       <input
         ref={fileInputRef}
@@ -76,7 +76,7 @@ export default function FileDropzone({ onFileSelected, disabled, lang = 'en' }) 
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-300">
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100/80 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 text-[11px] font-semibold text-slate-600 dark:text-slate-300 shadow-2xs">
           <span className="text-emerald-500 dark:text-emerald-400">🔒</span>
           {t.clientSideNotice}
         </div>

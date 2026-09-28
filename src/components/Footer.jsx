@@ -2,11 +2,11 @@ import React from 'react';
 import Link from './Link.jsx';
 import { UI_TRANSLATIONS } from '../data/translations.js';
 
-export default function Footer({ lang = 'en' }) {
+export default function Footer({ lang = 'en', onOpenAppModal }) {
   const t = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
 
   return (
-    <footer className="mt-14 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/60 py-8 px-4 sm:px-6 transition-colors">
+    <footer className="mt-16 border-t border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-slate-900/50 backdrop-blur-xl py-9 px-4 sm:px-6 transition-all duration-300 relative z-10">
       <div className="max-w-xl mx-auto space-y-6 text-center">
         {/* Brand identity */}
         <div className="space-y-1">
@@ -44,6 +44,15 @@ export default function Footer({ lang = 'en' }) {
           <Link href="/images-to-pdf" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
             {t.toolTitleImagesToPdf || 'Images to PDF'}
           </Link>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <button
+            type="button"
+            onClick={onOpenAppModal}
+            className="hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-colors inline-flex items-center gap-1 cursor-pointer"
+          >
+            <span>🤖</span>
+            <span>{t.androidAppNav || 'Android App'}</span>
+          </button>
         </nav>
 
         {/* Separator line */}

@@ -2,7 +2,7 @@ import React from 'react';
 import Link from './Link.jsx';
 import { UI_TRANSLATIONS } from '../data/translations.js';
 
-export default function ToolsHub({ lang = 'en' }) {
+export default function ToolsHub({ lang = 'en', onOpenAppModal }) {
   const t = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
 
   const pdfTools = [
@@ -70,6 +70,39 @@ export default function ToolsHub({ lang = 'en' }) {
         </p>
       </div>
 
+      {/* Mobile Android App Banner - iOS Liquid Glass */}
+      <div
+        onClick={onOpenAppModal}
+        className="p-4 rounded-[28px] ios-glass-card hover:border-emerald-400/60 dark:hover:border-emerald-500/50 flex items-center justify-between gap-3 shadow-md hover:shadow-xl transition-all ios-spring-press cursor-pointer group text-start relative overflow-hidden"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 text-white flex items-center justify-center text-2xl shadow-md shadow-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform border border-white/20">
+            🤖
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs sm:text-sm font-bold text-[#0B1220] dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                {t.androidAppBannerTitle}
+              </span>
+              <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-xs shrink-0">
+                APK
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+              {t.androidAppBannerDesc}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="h-9 px-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/20 shrink-0 flex items-center gap-1 cursor-pointer ios-spring-press"
+        >
+          <span>📥</span>
+          <span className="hidden sm:inline">{t.androidAppBannerBtn}</span>
+        </button>
+      </div>
+
       {/* PDF Category */}
       <section className="space-y-3" aria-label={t.toolsCategoryPdf}>
         <div className="flex items-center gap-2 border-b border-slate-200/80 dark:border-slate-800/80 pb-2">
@@ -84,7 +117,7 @@ export default function ToolsHub({ lang = 'en' }) {
             <Link
               key={tool.title}
               href={tool.path}
-              className="p-4 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-blue-500/80 dark:hover:border-blue-500/80 hover:bg-blue-50/20 dark:hover:bg-blue-950/20 rounded-2xl transition-all block group shadow-2xs text-start"
+              className="p-4.5 ios-glass-card hover:border-blue-500/60 dark:hover:border-blue-400/50 rounded-[24px] transition-all block group shadow-xs hover:shadow-lg text-start ios-spring-press"
             >
               <div className="flex items-start justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-2 min-w-0">
@@ -119,7 +152,7 @@ export default function ToolsHub({ lang = 'en' }) {
             <Link
               key={tool.title}
               href={tool.path}
-              className="p-4 bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-blue-500/80 dark:hover:border-blue-500/80 hover:bg-blue-50/20 dark:hover:bg-blue-950/20 rounded-2xl transition-all block group shadow-2xs text-start"
+              className="p-4.5 ios-glass-card hover:border-blue-500/60 dark:hover:border-blue-400/50 rounded-[24px] transition-all block group shadow-xs hover:shadow-lg text-start ios-spring-press"
             >
               <div className="flex items-start justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-2 min-w-0">

@@ -37,7 +37,7 @@ export default function AnalysisCard({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4 sm:space-y-5 transition-colors">
+    <div className="ios-glass-card rounded-[32px] p-6 sm:p-7 space-y-5 transition-all duration-300">
       {/* File Card Header */}
       <div className="flex items-start justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3.5">
         <div className="min-w-0 flex-1 flex items-center gap-2.5">
@@ -66,7 +66,7 @@ export default function AnalysisCard({
 
       {/* Analysis Metrics Grid */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
-        <div className="bg-slate-50/90 dark:bg-slate-950 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/80">
+        <div className="bg-slate-100/60 dark:bg-white/5 p-3.5 rounded-2xl border border-slate-200/60 dark:border-white/10 shadow-2xs">
           <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             {t.originalSize}
           </span>
@@ -74,7 +74,7 @@ export default function AnalysisCard({
             {originalFormatted}
           </span>
         </div>
-        <div className="bg-slate-50/90 dark:bg-slate-950 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/80">
+        <div className="bg-slate-100/60 dark:bg-white/5 p-3.5 rounded-2xl border border-slate-200/60 dark:border-white/10 shadow-2xs">
           <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             {t.targetLimit}
           </span>
@@ -82,7 +82,7 @@ export default function AnalysisCard({
             {targetFormatted || '—'}
           </span>
         </div>
-        <div className="bg-slate-50/90 dark:bg-slate-950 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/80">
+        <div className="bg-slate-100/60 dark:bg-white/5 p-3.5 rounded-2xl border border-slate-200/60 dark:border-white/10 shadow-2xs">
           <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             {fileType === 'PDF' ? t.pagesLabel : t.dimensionsLabel}
           </span>
@@ -319,7 +319,7 @@ export default function AnalysisCard({
             type="button"
             onClick={onProcess}
             disabled={isProcessing || !targetBytes || targetBytes <= 0}
-            className={`w-full h-12 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            className={`w-full h-12 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ios-spring-press ${
               isProcessing
                 ? 'bg-blue-400 text-white cursor-wait'
                 : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm shadow-blue-500/20'
