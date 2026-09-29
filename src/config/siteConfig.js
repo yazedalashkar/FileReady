@@ -33,4 +33,9 @@ export const SITE_CONFIG = {
     uptodownUrl: '',
     size: '12 MB',
   },
+  // Analytics configuration (Google Analytics 4)
+  analytics: {
+    enabled: true,
+    measurementId: 'G-HSXSERTP58',
+  },
 };

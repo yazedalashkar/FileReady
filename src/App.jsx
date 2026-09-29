@@ -203,6 +203,16 @@ export default function App() {
     }
   }, [currentPath]);
 
+  // Google Analytics Pageview Tracking on Route Changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('config', 'G-HSXSERTP58', {
+        page_path: currentPath,
+        page_title: document.title,
+      });
+    }
+  }, [currentPath]);
+
   const targetBytes = parseTargetToBytes(targetValue, targetUnit) || 0;
   const targetFormatted = formatBytes(targetBytes);
 
